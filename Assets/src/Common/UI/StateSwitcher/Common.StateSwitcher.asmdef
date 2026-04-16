@@ -1,0 +1,19 @@
+{
+    "name": "Common.StateSwitcher",
+    "rootNamespace": "",
+    "references": [
+        "Unity-ui-extensions",
+        "Banzai.UI.Base",
+        "Vector.Wrappers",
+        "spine-unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
