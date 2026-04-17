@@ -9,6 +9,7 @@ namespace Core.Base
     {
         
     }
+    
 
     public class CompositeState
     {
