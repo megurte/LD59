@@ -56,6 +56,7 @@ namespace Common
         private List<AudioClip> Loops = new List<AudioClip>();
         private AudioSource source;
 
+        
         public string InitialSong;
         public float loopOffset;
 
