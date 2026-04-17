@@ -52,9 +52,9 @@ namespace Common
             }
         }
 
-        List<AudioClip> SFX = new List<AudioClip>();
-        List<AudioClip> Loops = new List<AudioClip>();
-        AudioSource source;
+        private List<AudioClip> SFX = new List<AudioClip>();
+        private List<AudioClip> Loops = new List<AudioClip>();
+        private AudioSource source;
 
         public string InitialSong;
         public float loopOffset;
