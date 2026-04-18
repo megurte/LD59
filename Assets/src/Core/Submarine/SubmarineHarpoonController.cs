@@ -167,12 +167,13 @@ namespace Core.Submarine
                 return;
             }
 
-            var hookable = other.GetComponent<IHookable>() ?? other.GetComponentInParent<IHookable>();
+            var hookable = other.GetComponent<IHookable>();
             if (hookable == null)
             {
                 return;
             }
-
+            
+            hookable.OnHook();
             _hookedTarget = hookable;
             _hookedRoot = hookable.RootTransform;
             _hookedPoint = hookable.HookTransform != null ? hookable.HookTransform : hookable.RootTransform;
@@ -184,8 +185,6 @@ namespace Core.Submarine
                 _hookedPoint = null;
                 return;
             }
-
-
             
             _hookOffset = _hookedPoint.position - _hookedRoot.position;
             _harpoonPosition = _hookedPoint.position;

@@ -5,6 +5,8 @@ namespace Core.Fish
 {
     public class FishState : MonoBehaviour, IHookable
     {
+        public bool IsHooked { get; private set; }
+        
         [SerializeField] private float weight = 1;
         [SerializeField] private float fuel = 8;
         [SerializeField] private Transform rootTransform;
@@ -14,5 +16,12 @@ namespace Core.Fish
         public float FuelAmount => fuel;
         public Transform RootTransform => rootTransform;
         public Transform HookTransform => hookTransform;
+        
+        public void OnHook()
+        {
+            var movement = GetComponent<FishMovementController>();
+            movement.BeginEscape();
+            IsHooked = true;
+        }
     }
 }

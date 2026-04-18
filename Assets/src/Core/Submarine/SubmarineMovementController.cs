@@ -57,6 +57,11 @@ namespace Core.Submarine
             _currentFuel = Mathf.Clamp(_currentFuel + amount, 0f, maxFuel);
         }
 
+        public void SubstructFuel(float amount)
+        {
+            _currentFuel = Mathf.Clamp(_currentFuel - amount, 0f, maxFuel);
+        }
+
         private bool HasReachedEnd(Vector3 direction)
         {
             if (startPoint == null || endPoint == null)

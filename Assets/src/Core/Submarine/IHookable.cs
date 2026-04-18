@@ -8,5 +8,6 @@ namespace Core.Submarine
         float FuelAmount { get; }
         Transform RootTransform { get; }
         Transform HookTransform { get; }
+        void OnHook();
     }
 }

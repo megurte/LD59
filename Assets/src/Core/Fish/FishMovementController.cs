@@ -182,8 +182,12 @@ namespace Core.Fish
             return toSubmarine.sqrMagnitude <= reactionRadius * reactionRadius;
         }
 
-        private void BeginEscape()
+        public void BeginEscape()
         {
+            var fishState = GetComponent<FishState>();
+            
+            if (fishState.IsHooked) return; 
+            
             _state = FishMoveState.Escape;
             _escapeTimer = 0f;
             var inst = Global.EffectFactory.Create(bubblesBurst);
