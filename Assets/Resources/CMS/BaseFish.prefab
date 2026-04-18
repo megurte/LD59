@@ -506,8 +506,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.33852, y: -0.60836, z: 0}
-  m_LocalScale: {x: 0.6, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5854436495348056104}
   m_Father: {fileID: 0}
@@ -524,12 +524,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54ce5fedf1c84ad79d271894745f3382, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Core.Fish.FishMovementController
-  squareSize: {x: 4.8, y: 4.8}
-  moveSpeed: 1.7
+  submarineMovement: {fileID: 0}
+  cruiseSpeed: 1
+  escapeSpeed: 3.2
   turnSmoothTime: 0.16
   maxTurnSpeed: 540
-  cornerLookAheadDistance: 1
-  clockwise: 0
+  waypointReachDistance: 0.35
+  reactionRadius: 2.5
+  escapeReleaseRadius: 3.3
+  escapeMinDuration: 0.8
+  targetRefreshInterval: 2.4
+  randomRetargetJitter: 0.6
+  approachOffsetRange: {x: 0.25, y: 1.1}
+  passOffsetRange: {x: 1.5, y: 3.5}
+  passForwardRange: {x: -1.5, y: 1.5}
+  reactionGizmoColor: {r: 0.2, g: 0.85, b: 1, a: 0.9}
+  bubblesBurst: {fileID: 744990352225913224, guid: dfaf9e7f24f4e724bb19cf3e1eeb4dc0, type: 3}
 --- !u!114 &2848444947364004418
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using GlobalSpace;
 using UnityEngine;
 
 namespace Core.Submarine
@@ -19,6 +20,7 @@ namespace Core.Submarine
 
         private void Awake()
         {
+            Global.SubmarineMovement = this;
             _currentFuel = Mathf.Clamp(startFuel, 0f, maxFuel);
         }
 
