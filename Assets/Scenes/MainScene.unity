@@ -1154,8 +1154,8 @@ Transform:
   m_GameObject: {fileID: 635357410}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.1908, y: 9.642, z: 0}
-  m_LocalScale: {x: 25.853893, y: 29.55016, z: 1}
+  m_LocalPosition: {x: -0.1908, y: 138.0954, z: 0}
+  m_LocalScale: {x: 25.853893, y: 236.73395, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 809676708}
@@ -18253,7 +18253,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1907327433}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ad7ba2f2dfd4c3a9bd80b9ecddb8ef0, type: 3}
   m_Name: 
@@ -18395,6 +18395,66 @@ Transform:
   m_Children:
   - {fileID: 1921235488}
   m_Father: {fileID: 1907327434}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2003059851
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2003059853}
+  - component: {fileID: 2003059852}
+  m_Layer: 0
+  m_Name: SpawnController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2003059852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003059851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ad7ba2f2dfd4c3a9bd80b9ecddb8ef0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Core.Fish.FishSpawnController
+  submarineMovement: {fileID: 1907327437}
+  spawnParent: {fileID: 2003059853}
+  spawnRules:
+  - prefab: {fileID: 8477531263846620979, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
+    intervalRange: {x: 2.8, y: 4.8}
+    schoolChance: 0.38
+    schoolSizeRange: {x: 3, y: 5}
+    schoolSpacingRange: {x: 0.7, y: 1.15}
+  spawnAheadOffset: 10
+  spawnAheadJitter: 2
+  spawnHorizontalRange: {x: -6.5, y: 6.5}
+  minimumForwardOffset: 4
+  despawnBehindDistance: 16
+  despawnHorizontalDistance: 18
+  maxSpawnedFish: 36
+  spawnGizmoColor: {r: 0.3, g: 1, b: 0.75, a: 0.9}
+--- !u!4 &2003059853
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003059851}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.30267, y: 0.63729, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2040730379
 GameObject:
@@ -23960,3 +24020,4 @@ SceneRoots:
   - {fileID: 1689239669}
   - {fileID: 1757552295}
   - {fileID: 753268417}
+  - {fileID: 2003059853}
