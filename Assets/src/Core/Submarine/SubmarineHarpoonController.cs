@@ -63,6 +63,12 @@ namespace Core.Submarine
 
         private void Update()
         {
+            if (Global.IsUpgradeSelectorOpen)
+            {
+                UpdateRope();
+                return;
+            }
+
             if (_state == HarpoonState.Idle && !IsHarpoonSelected())
             {
                 UpdateRope();
@@ -260,6 +266,7 @@ namespace Core.Submarine
         {
             InAir = false;
             _state = HarpoonState.Idle;
+            
             _hookedTarget = null;
             _hookedRoot = null;
             _hookedPoint = null;
@@ -306,15 +313,14 @@ namespace Core.Submarine
                 return;
             }
 
-            if (submarineMovement != null)
-            {
-                submarineMovement.AddFuel(_hookedTarget.FuelAmount);
-            }
+            _hookedTarget.OnObtain();
+            submarineMovement.AddFuel(_hookedTarget.FuelAmount);
 
-            if (_hookedRoot != null)
+
+            /*if (_hookedRoot != null)
             {
                 _hookedRoot.gameObject.SetActive(false);
-            }
+            }*/
         }
 
         private bool IsInHookMask(int layer)

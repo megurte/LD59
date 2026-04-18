@@ -9,5 +9,6 @@ namespace Core.Submarine
         Transform RootTransform { get; }
         Transform HookTransform { get; }
         void OnHook();
+        void OnObtain();
     }
 }

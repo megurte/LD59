@@ -23,6 +23,11 @@ namespace Core.Submarine
 
         private void Update()
         {
+            if (Global.IsUpgradeSelectorOpen)
+            {
+                return;
+            }
+
             if (!CanShoot())
             {
                 return;

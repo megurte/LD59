@@ -34,7 +34,11 @@ namespace Core.SignalObjects
             var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
             Instantiate(pfb, transform.position, Quaternion.identity);
             _spriteRenderer.gameObject.SetActive(true);
-            Destroy(gameObject, 2f);
+            Destroy(gameObject);
+        }
+
+        public void OnObtain()
+        {
         }
     }
 }

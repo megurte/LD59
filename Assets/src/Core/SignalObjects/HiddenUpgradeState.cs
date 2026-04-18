@@ -1,6 +1,8 @@
-﻿using Constants;
+﻿using System.Collections.Generic;
+using Constants;
 using Core.Fish;
 using Core.Submarine;
+using Core.Upgrade;
 using GlobalSpace;
 using UnityEngine;
 
@@ -21,6 +23,13 @@ namespace Core.SignalObjects
         public void OnHook()
         {
             _spriteRenderer.gameObject.SetActive(true);
+        }
+        
+        public void OnObtain()
+        {
+            var sample = new List<IUpgrade>{ new SampleUpgrade(), new SampleUpgrade(), new SampleUpgrade()};
+            Global.UpgradeSelectorController.ShowUpgradeSelector(sample);
+            gameObject.SetActive(false);
         }
 
         public void OnTakeDamage(float damage)

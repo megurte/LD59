@@ -1,6 +1,7 @@
-﻿using Common;
+using Common;
 using Common.UI;
 using Core.Submarine;
+using Core.Upgrade;
 
 namespace GlobalSpace
 {
@@ -14,13 +15,14 @@ namespace GlobalSpace
         public static AudioController AudioController;
         public static TextController TextController;
         public static ToolController ToolController;
-        
+        public static UpgradeSelectorController UpgradeSelectorController;
+        public static bool IsUpgradeSelectorOpen { get; set; }
+
         // Core
         public static SubmarineHarpoonController HarpoonController { get; set; }
         public static SubmarineMovementController SubmarineMovement { get; set; }
-        
-        // Factories
 
+        // Factories
         public static EffectFactory EffectFactory = new();
     }
 }

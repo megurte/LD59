@@ -10,6 +10,7 @@ namespace Common.UI
         [SerializeField] private float defaultScale = 1f;
         [SerializeField] private float hoverDuration = 0.4f;
         [SerializeField] private float exitDuration = 0.3f;
+        [SerializeField] private bool useUnscaledTime;
         
         private Tween _currentTween;
         
@@ -29,6 +30,7 @@ namespace Common.UI
             transform.DOKill();
 
             transform.DOScale(hoverScale, hoverDuration)
+                .SetUpdate(useUnscaledTime)
                 .SetEase(Ease.OutBack);
         }
 
@@ -38,6 +40,7 @@ namespace Common.UI
             transform.DOKill();
 
             _currentTween = transform.DOScale(defaultScale, exitDuration)
+                .SetUpdate(useUnscaledTime)
                 .SetEase(Ease.OutBack);
         }
     }

@@ -29,6 +29,11 @@ namespace Core.Submarine
 
         private void Update()
         {
+            if (GlobalSpace.Global.IsUpgradeSelectorOpen)
+            {
+                return;
+            }
+
             if (Input.GetMouseButtonDown(1))
             {
                 SwitchToolNext();

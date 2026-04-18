@@ -43,6 +43,7 @@ namespace Common.UI
                     minAlpha,
                     duration)
                 .SetEase(ease)
+                .SetUpdate(true)
                 .SetLoops(-1, LoopType.Yoyo);
         }
     }

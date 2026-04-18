@@ -23,5 +23,10 @@ namespace Core.Fish
             movement.BeginEscape();
             IsHooked = true;
         }
+
+        public void OnObtain()
+        {
+            gameObject.SetActive(false);
+        }
     }
 }
