@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Core.Fish
 {
+    // FISH FIIIIIISH FIIIIISH
     public class FishAnimator : MonoBehaviour
     {
         private static readonly int WaveAmplitudeId = Shader.PropertyToID("_WaveAmplitude");
@@ -83,6 +84,7 @@ namespace Core.Fish
             spriteTransform.localRotation = _baseLocalRotation * Quaternion.Euler(0f, 0f, bodyRotation + turnRotation);
             spriteTransform.localScale = _baseLocalScale + new Vector3(-scaleOffset, 0f, 0f);
 
+            // :poop:
             spriteRenderer.GetPropertyBlock(_propertyBlock);
             _propertyBlock.SetFloat(WaveAmplitudeId, _currentAmplitude);
             _propertyBlock.SetFloat(TailAmplitudeId, _currentTailAmplitude);

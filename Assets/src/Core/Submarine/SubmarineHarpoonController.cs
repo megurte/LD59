@@ -1,4 +1,5 @@
 using DG.Tweening;
+using GlobalSpace;
 using UnityEngine;
 
 namespace Core.Submarine
@@ -22,6 +23,8 @@ namespace Core.Submarine
         [SerializeField] private float harpoonScale = 1f;
         [SerializeField] private LayerMask hookMask = ~0;
 
+        public bool InAir {get; private set;}
+        
         private Vector3 _harpoonBaseScale;
         private Vector3 _harpoonPosition;
         private Vector3 _targetPosition;
@@ -43,6 +46,7 @@ namespace Core.Submarine
 
         private void Awake()
         {
+            Global.HarpoonController = this;
             harpoonRenderer.sortingOrder = 3;
             _harpoonBaseScale = harpoon.localScale * harpoonScale;
             harpoon.localScale = _harpoonBaseScale;
@@ -58,6 +62,12 @@ namespace Core.Submarine
 
         private void Update()
         {
+            if (_state == HarpoonState.Idle && !IsHarpoonSelected())
+            {
+                UpdateRope();
+                return;
+            }
+
             if (_state == HarpoonState.Idle && Input.GetMouseButtonDown(0))
             {
                 Fire();
@@ -74,6 +84,7 @@ namespace Core.Submarine
 
         private void Fire()
         {
+            InAir = true;
             var pivotPosition = harpoonPivot.position;
             var mousePosition = Input.mousePosition;
             var worldPoint = targetCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Mathf.Abs(targetCamera.transform.position.z)));
@@ -242,6 +253,7 @@ namespace Core.Submarine
 
         private void ResetHarpoonInstant()
         {
+            InAir = false;
             _state = HarpoonState.Idle;
             _hookedTarget = null;
             _hookedRoot = null;
@@ -303,6 +315,11 @@ namespace Core.Submarine
         private bool IsInHookMask(int layer)
         {
             return (hookMask.value & (1 << layer)) != 0;
+        }
+
+        private bool IsHarpoonSelected()
+        {
+            return GlobalSpace.Global.ToolController == null || GlobalSpace.Global.ToolController.IsToolActive(ToolType.Harpoon);
         }
     }
 }

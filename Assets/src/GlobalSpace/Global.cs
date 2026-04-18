@@ -14,5 +14,6 @@ namespace GlobalSpace
         public static AudioController AudioController;
         public static TextController TextController;
         public static ToolController ToolController;
+        public static SubmarineHarpoonController HarpoonController { get; set; }
     }
 }
