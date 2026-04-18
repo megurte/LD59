@@ -1,3 +1,4 @@
+using Constants;
 using DG.Tweening;
 using GlobalSpace;
 using UnityEngine;
@@ -184,6 +185,8 @@ namespace Core.Submarine
                 return;
             }
 
+
+            
             _hookOffset = _hookedPoint.position - _hookedRoot.position;
             _harpoonPosition = _hookedPoint.position;
             StartReturn();
@@ -191,6 +194,9 @@ namespace Core.Submarine
 
         private void StartReturn()
         {
+            var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
+            Instantiate(pfb, _harpoonPosition, Quaternion.identity);
+            
             _state = HarpoonState.Returning;
             if (harpoonCollider != null)
             {

@@ -2346,6 +2346,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BaseFish (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 8477531263846620979, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2422,6 +2426,10 @@ PrefabInstance:
     - target: {fileID: 8477531263846620979, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
       propertyPath: m_Name
       value: BaseFish (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8477531263846620979, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18139,6 +18147,7 @@ GameObject:
   - component: {fileID: 1907327435}
   - component: {fileID: 1907327436}
   - component: {fileID: 1907327437}
+  - component: {fileID: 1907327438}
   m_Layer: 0
   m_Name: Submarine
   m_TagString: Untagged
@@ -18237,6 +18246,34 @@ MonoBehaviour:
   maxFuel: 100
   startFuel: 100
   fuelBurnPerSecond: 1.5
+--- !u!114 &1907327438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907327433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ad7ba2f2dfd4c3a9bd80b9ecddb8ef0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Core.Fish.FishSpawnController
+  submarineMovement: {fileID: 1907327437}
+  spawnParent: {fileID: 0}
+  spawnRules:
+  - prefab: {fileID: 100100000, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
+    intervalRange: {x: 2.8, y: 4.8}
+    schoolChance: 0.38
+    schoolSizeRange: {x: 3, y: 5}
+    schoolSpacingRange: {x: 0.7, y: 1.15}
+  spawnAheadOffset: 10
+  spawnAheadJitter: 2
+  spawnHorizontalRange: {x: -6.5, y: 6.5}
+  minimumForwardOffset: 4
+  despawnBehindDistance: 16
+  despawnHorizontalDistance: 18
+  maxSpawnedFish: 36
+  spawnGizmoColor: {r: 0.3, g: 1, b: 0.75, a: 0.9}
 --- !u!1 &1921235487
 GameObject:
   m_ObjectHideFlags: 0
@@ -23890,6 +23927,10 @@ PrefabInstance:
     - target: {fileID: 8477531263846620979, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
       propertyPath: m_Name
       value: BaseFish
+      objectReference: {fileID: 0}
+    - target: {fileID: 8477531263846620979, guid: 3f2f0c12a73f4b245bd2de327ccd4d2e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

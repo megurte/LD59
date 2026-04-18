@@ -163,7 +163,20 @@ namespace Core.Fish
 
         private bool ShouldStartEscape()
         {
-            _submarineTransform = Global.SubmarineMovement.transform;
+            if (Global.SubmarineMovement != null)
+            {
+                _submarineTransform = Global.SubmarineMovement.transform;
+            }
+            else if (submarineMovement != null)
+            {
+                _submarineTransform = submarineMovement.transform;
+            }
+
+            if (_submarineTransform == null)
+            {
+                return false;
+            }
+
             var toSubmarine = _submarineTransform.position - transform.position;
             toSubmarine.z = 0f;
             return toSubmarine.sqrMagnitude <= reactionRadius * reactionRadius;
@@ -261,6 +274,12 @@ namespace Core.Fish
             }
 
             return Vector3.up;
+        }
+
+        public void BindSubmarine(SubmarineMovementController movementController)
+        {
+            submarineMovement = movementController;
+            _submarineTransform = submarineMovement != null ? submarineMovement.transform : null;
         }
 
         private void OnDrawGizmosSelected()
