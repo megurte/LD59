@@ -219,7 +219,7 @@ TextureImporter:
         width: 48
         height: 222
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -228,6 +228,50 @@ TextureImporter:
       bones: []
       spriteID: 3b0e49794f446d64aba82cb089905313
       internalID: -345586943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cannon
+      rect:
+        serializedVersion: 2
+        x: 1719
+        y: 2018
+        width: 75
+        height: 266
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6f7dec1dd8a3754faa3d300b1e61da8
+      internalID: 1908060407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cabine
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 2283
+        width: 208
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed6f711d059307a4492ad64fe9540b54
+      internalID: 1178784924
       vertices: []
       indices: 
       edges: []
@@ -247,6 +291,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       bubble: 1148579506
+      cabine: 1178784924
+      cannon: 1908060407
       harpoon: -345586943
       submarine_0: -1575931805
       submarine_1: -1777022743

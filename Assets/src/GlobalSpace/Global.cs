@@ -1,5 +1,6 @@
 ﻿using Common;
 using Common.UI;
+using Core.Submarine;
 
 namespace GlobalSpace
 {
@@ -12,5 +13,6 @@ namespace GlobalSpace
 
         public static AudioController AudioController;
         public static TextController TextController;
+        public static ToolController ToolController;
     }
 }

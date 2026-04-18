@@ -8,6 +8,8 @@ namespace Core.Submarine
         [SerializeField] private Camera targetCamera;
         [SerializeField] private Transform harpoonPivot;
         [SerializeField] private Transform harpoon;
+        [SerializeField] private Rigidbody2D harpoonBody;
+        [SerializeField] private Collider2D harpoonCollider;
         [SerializeField] private SpriteRenderer harpoonRenderer;
         [SerializeField] private LineRenderer rope;
         [SerializeField] private SubmarineMovementController submarineMovement;
@@ -16,13 +18,9 @@ namespace Core.Submarine
         [SerializeField] private float minReturnSpeed = 4f;
         [SerializeField] private float weightFactor = 0.45f;
         [SerializeField] private float maxDistance = 16f;
-        [SerializeField] private float hitRadius = 0.25f;
         [SerializeField] private float ropeWidth = 0.08f;
         [SerializeField] private float harpoonScale = 1f;
         [SerializeField] private LayerMask hookMask = ~0;
-
-        private readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[8];
-        private ContactFilter2D _hookFilter;
 
         private Vector3 _harpoonBaseScale;
         private Vector3 _harpoonPosition;
@@ -55,12 +53,6 @@ namespace Core.Submarine
             rope.endWidth = ropeWidth;
             rope.numCapVertices = 6;
             rope.numCornerVertices = 2;
-            _hookFilter = new ContactFilter2D
-            {
-                useLayerMask = true,
-                layerMask = hookMask,
-                useTriggers = true
-            };
             ResetHarpoonInstant();
         }
 
@@ -111,6 +103,10 @@ namespace Core.Submarine
             harpoon.DOKill();
             harpoon.localScale = _harpoonBaseScale * 0.88f;
             harpoon.DOScale(_harpoonBaseScale, 0.16f).SetEase(Ease.OutBack);
+            if (harpoonCollider != null)
+            {
+                harpoonCollider.enabled = true;
+            }
             UpdateHarpoonTransform();
         }
 
@@ -132,11 +128,6 @@ namespace Core.Submarine
                 _lastDirection = delta.normalized;
             }
 
-            if (_state == HarpoonState.Flying && TryHook(previousPosition, _harpoonPosition))
-            {
-                StartReturn();
-            }
-
             UpdateHookedObject();
             UpdateHarpoonTransform();
 
@@ -152,53 +143,48 @@ namespace Core.Submarine
             }
         }
 
-        private bool TryHook(Vector3 from, Vector3 to)
+        public void TryHook(Collider2D other)
         {
-            var delta = to - from;
-            var distance = delta.magnitude;
-            if (distance <= 0f)
+            if (_state != HarpoonState.Flying || _hookedTarget != null || other == null)
             {
-                return false;
+                return;
             }
 
-            var hitCount = Physics2D.CircleCast(from, hitRadius, delta.normalized, _hookFilter, _hitBuffer, distance);
-            for (var i = 0; i < hitCount; i++)
+            if (!IsInHookMask(other.gameObject.layer))
             {
-                var hit = _hitBuffer[i];
-                if (hit.collider == null)
-                {
-                    continue;
-                }
-
-                if (!HookableObject.TryGet(hit.collider, out var hookable))
-                {
-                    continue;
-                }
-
-                _hookedTarget = hookable;
-                _hookedRoot = hookable.RootTransform;
-                _hookedPoint = hookable.HookTransform != null ? hookable.HookTransform : hookable.RootTransform;
-
-                if (_hookedRoot == null || _hookedPoint == null)
-                {
-                    _hookedTarget = null;
-                    _hookedRoot = null;
-                    _hookedPoint = null;
-                    return false;
-                }
-
-                _hookOffset = _hookedPoint.position - _hookedRoot.position;
-                _harpoonPosition = hit.point == Vector2.zero ? hit.collider.transform.position : (Vector3)hit.point;
-
-                return true;
+                return;
             }
 
-            return false;
+            var hookable = other.GetComponent<IHookable>() ?? other.GetComponentInParent<IHookable>();
+            if (hookable == null)
+            {
+                return;
+            }
+
+            _hookedTarget = hookable;
+            _hookedRoot = hookable.RootTransform;
+            _hookedPoint = hookable.HookTransform != null ? hookable.HookTransform : hookable.RootTransform;
+
+            if (_hookedRoot == null || _hookedPoint == null)
+            {
+                _hookedTarget = null;
+                _hookedRoot = null;
+                _hookedPoint = null;
+                return;
+            }
+
+            _hookOffset = _hookedPoint.position - _hookedRoot.position;
+            _harpoonPosition = _hookedPoint.position;
+            StartReturn();
         }
 
         private void StartReturn()
         {
             _state = HarpoonState.Returning;
+            if (harpoonCollider != null)
+            {
+                harpoonCollider.enabled = false;
+            }
         }
 
         private void UpdateHookedObject()
@@ -223,9 +209,17 @@ namespace Core.Submarine
 
         private void UpdateHarpoonTransform()
         {
-            harpoon.position = _harpoonPosition;
             var angle = Mathf.Atan2(_lastDirection.y, _lastDirection.x) * Mathf.Rad2Deg - 90f;
-            harpoon.rotation = Quaternion.Euler(0f, 0f, angle);
+            if (harpoonBody != null)
+            {
+                harpoonBody.position = _harpoonPosition;
+                harpoonBody.rotation = angle;
+            }
+            else
+            {
+                harpoon.position = _harpoonPosition;
+                harpoon.rotation = Quaternion.Euler(0f, 0f, angle);
+            }
         }
 
         private void UpdateRope()
@@ -264,9 +258,21 @@ namespace Core.Submarine
             if (harpoon != null)
             {
                 harpoon.DOKill();
-                harpoon.position = _harpoonPosition;
-                harpoon.rotation = Quaternion.identity;
                 harpoon.localScale = _harpoonBaseScale;
+                if (harpoonCollider != null)
+                {
+                    harpoonCollider.enabled = false;
+                }
+                if (harpoonBody != null)
+                {
+                    harpoonBody.position = _harpoonPosition;
+                    harpoonBody.rotation = 0f;
+                }
+                else
+                {
+                    harpoon.position = _harpoonPosition;
+                    harpoon.rotation = Quaternion.identity;
+                }
                 harpoon.gameObject.SetActive(false);
             }
 
@@ -292,6 +298,11 @@ namespace Core.Submarine
             {
                 _hookedRoot.gameObject.SetActive(false);
             }
+        }
+
+        private bool IsInHookMask(int layer)
+        {
+            return (hookMask.value & (1 << layer)) != 0;
         }
     }
 }
