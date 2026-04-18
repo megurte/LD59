@@ -369,7 +369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3b4540a238c4a4ca10ab62f5e544bf, type: 3}
   m_Name: AnalogGlitchVolume
   m_EditorClassIdentifier: URPGlitch::URPGlitch.AnalogGlitchVolume
-  active: 1
+  active: 0
   scanLineJitter:
     m_OverrideState: 1
     m_Value: 0.006
@@ -646,10 +646,10 @@ MonoBehaviour:
   active: 0
   intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.42
   xMultiplier:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.771
   yMultiplier:
     m_OverrideState: 1
     m_Value: 1
@@ -674,7 +674,7 @@ MonoBehaviour:
   active: 0
   temperature:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 100
   tint:
     m_OverrideState: 1
     m_Value: 0
@@ -693,7 +693,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.187
 --- !u!114 &5762530381802164056
 MonoBehaviour:
   m_ObjectHideFlags: 3
