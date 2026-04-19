@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,6 +13,14 @@ public class GameSessionController : MonoBehaviour
         [SerializeField] private Button _restartButton;
         [SerializeField] private Canvas hudCanvas;
         
+        // win
+        [SerializeField] private GameObject winRoot;
+        [SerializeField] private TextMeshProUGUI winText;
+        [SerializeField] private CanvasGroup winCanvasGroup;
+        [SerializeField] private TextMeshProUGUI sentence;
+        [SerializeField] private TextMeshProUGUI thxText;
+
+
         private enum SessionState
         {
             Playing,
@@ -42,9 +51,17 @@ public class GameSessionController : MonoBehaviour
 
         private void TriggerWin()
         {
-            // TODo
             _sessionState = SessionState.Won;
             StopGameplaySystems();
+            winRoot.SetActive(true);
+            winText.alpha = 0;
+            sentence.alpha = 0;
+            thxText.alpha = 0;
+            var seq = DOTween.Sequence();
+            seq.Append(winText.DOFade(1, 1.4f).SetEase(Ease.OutSine));
+            seq.Append(winCanvasGroup.DOFade(1, 0.5f).SetEase(Ease.OutSine));
+            seq.Append(sentence.DOFade(1, 1.4f).SetEase(Ease.OutSine));
+            seq.Append(thxText.DOFade(1, 1.4f).SetEase(Ease.OutSine));
         }
 
         private void TriggerLose()

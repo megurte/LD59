@@ -532,7 +532,7 @@ MonoBehaviour:
   waypointReachDistance: 0.35
   reactionRadius: 3.4
   escapeReleaseRadius: 3.6
-  escapeMinDuration: 1.2
+  escapeMinDuration: 2.32
   targetRefreshInterval: 2.4
   randomRetargetJitter: 0.6
   approachOffsetRange: {x: 0.25, y: 1.1}
@@ -577,11 +577,11 @@ MonoBehaviour:
   phaseOffset: 1.25
   turnAngle: 10
   rootSwayOffset: 0.08
-  rootSwayAngle: 3.5
+  rootSwayAngle: 4.53
   rootTurnAngle: 5
   finFrequency: 7
-  finAngle: 20
-  finTurnAngle: 12
+  finAngle: 26.3
+  finTurnAngle: 12.1
   finPhaseOffset: 0.7
   animationResponse: 12
   spineAmplitudeCurve:

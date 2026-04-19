@@ -18,7 +18,8 @@ namespace Core.Submarine
         [SerializeField] private float explosionShakeStrength = 0.2f;
         [SerializeField] private float explosionShakeDuration = 0.22f;
         [SerializeField] private float explosionShakeFrequency = 27f;
-
+        [SerializeField] private GameObject vfx;
+        
         public void Launch(Vector2 direction, float speed)
         {
             if (body == null)
@@ -71,6 +72,14 @@ namespace Core.Submarine
                 explosionShakeStrength,
                 explosionShakeDuration,
                 explosionShakeFrequency);
+            
+            vfx.transform.SetParent(Global.FishSpawnController.gameObject.transform);
+            vfx.transform.localScale = Vector3.one;
+            var ps = vfx.GetComponent<ParticleSystem>();
+            var main = ps.main;
+            main.loop = false;
+            ps.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+            
             Destroy(gameObject);
         }
 

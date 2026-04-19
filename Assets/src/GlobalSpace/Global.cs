@@ -33,6 +33,7 @@ namespace GlobalSpace
         
         public static FishSpawnController FishSpawnController { get; set; }
         public static HiddenSignalSpawnController HiddenSignalSpawnController { get; set; }
+        public static TutorialController TutorialController { get; set; }
         
         // Factories
         public static EffectFactory EffectFactory = new();
