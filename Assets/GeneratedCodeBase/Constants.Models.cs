@@ -8,6 +8,10 @@ namespace Constants
         public const string BaseFish = "CMS/BaseFish";
         public const string BubbleBurst = "CMS/bubbleBurst";
         public const string GameObject = "CMS/GameObject";
+        public const string HiddenMine = "CMS/HiddenObjects/HiddenMine";
+        public const string HiddenUpgrade = "CMS/HiddenObjects/HiddenUpgrade";
         public const string NewEntity1 = "CMS/NewEntity1";
+        public const string ProjectileBase = "CMS/ProjectileBase";
+        public const string UpgradeView = "CMS/upgradeView";
     }
 }

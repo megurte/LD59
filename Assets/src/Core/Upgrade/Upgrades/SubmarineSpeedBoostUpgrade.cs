@@ -5,7 +5,7 @@ namespace Core.Upgrade.Upgrades
 {
     public class SubmarineSpeedBoostUpgrade : UpgradeBase
     {
-        private const float SpeedMultiplier = 2.5f;
+        private const float SpeedMultiplier = 5.5f;
 
         public override string Name => "Favorable current";
         public override string Desc => "Significantly boosts submarine's speed for short time";
@@ -18,9 +18,9 @@ namespace Core.Upgrade.Upgrades
                 return;
             }
 
-            Global.SubmarineMovement.ApplyTemporarySpeedBoost(
-                SpeedMultiplier,
-                Global.GameProgress.PlayerState.speedBoostTime);
+            var duration = Global.GameProgress.PlayerState.speedBoostTime;
+            Global.SubmarineMovement.ApplyTemporarySpeedBoost(SpeedMultiplier, duration);
+            Global.SubmarineCameraController?.PlaySpeedBoostState(duration);
         }
     }
 }

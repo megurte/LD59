@@ -66,7 +66,7 @@ namespace Core.Submarine
 
         public void ApplyTemporarySpeedBoost(float multiplier, float duration)
         {
-            _speedBoostMultiplier = Mathf.Max(_speedBoostMultiplier, multiplier);
+            _speedBoostMultiplier += multiplier;
             _speedBoostEndTime = Mathf.Max(_speedBoostEndTime, Time.time + duration);
         }
 

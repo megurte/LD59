@@ -3,7 +3,7 @@
     public class PlayerState
     {
         public float harpoonSpeedModifier = 1f;
-        public float speedBoostTime = 1.3f;
+        public float speedBoostTime = 1.5f;
         public float cannonFireCooldownModifier = 1f;
         public float projectileExplosionRadiusModifier = 1f;
         

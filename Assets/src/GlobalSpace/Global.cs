@@ -25,6 +25,7 @@ namespace GlobalSpace
         public static bool IsUpgradeSelectorOpen { get; set; }
 
         // Core
+        public static SubmarineCameraController SubmarineCameraController { get; set; }
         public static SubmarineHarpoonController HarpoonController { get; set; }
         public static SubmarineMovementController SubmarineMovement { get; set; }
 

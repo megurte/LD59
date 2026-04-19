@@ -12,6 +12,7 @@ namespace Core.Upgrade
         private readonly List<UpgradeDropEntry> _dropMap = new()
         {
             new UpgradeDropEntry(() => new FuelRefillUpgrade(), 1.4f),
+            new UpgradeDropEntry(() => new FuelRefillPlusUpgrade(), 0.6f),
             new UpgradeDropEntry(() => new HarpoonSpeedUpgrade(), 1f),
             new UpgradeDropEntry(() => new CannonCooldownUpgrade(), 1f),
             new UpgradeDropEntry(() => new ExplosionProjectileUpgrade(), 0.8f),
