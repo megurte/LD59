@@ -26,7 +26,10 @@ namespace Core.Submarine
         public void OnTriggerEnter2D(Collider2D other)
         {
             if (other.TryGetComponent<IDamageable>(out var damagable))
+            {
                 damagable.OnTakeDamage(1);
+                Destroy(gameObject);                
+            }
         }
     }
 }

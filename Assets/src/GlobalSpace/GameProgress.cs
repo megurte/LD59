@@ -2,6 +2,13 @@
 {
     public class PlayerState
     {
+        public float harpoonSpeedModifier = 1f;
+        public float speedBoostTime = 1.3f;
+        public float cannonFireCooldownModifier = 1f;
+        public float projectileExplosionRadiusModifier = 1f;
+        
+        public bool availableDropFromFish = false;
+        public bool mineProjectiles = false;
     }
     
     public class GameProgress

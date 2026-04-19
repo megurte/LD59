@@ -20,6 +20,7 @@ namespace Core.SignalObjects
         public float FuelAmount => fuel;
         public Transform RootTransform => rootTransform;
         public Transform HookTransform => hookTransform;
+        
         public void OnHook()
         {
             _spriteRenderer.gameObject.SetActive(true);
