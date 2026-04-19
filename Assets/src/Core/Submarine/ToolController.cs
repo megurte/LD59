@@ -36,6 +36,8 @@ namespace Core.Submarine
 
             if (Input.GetMouseButtonDown(1))
             {
+                if (GlobalSpace.Global.IsUpgradeSelectorOpen)
+                    return;
                 SwitchToolNext();
             }
         }

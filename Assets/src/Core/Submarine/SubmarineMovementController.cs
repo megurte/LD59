@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
+using Common;
 using Constants;
 using DG.Tweening;
 using GlobalSpace;
@@ -10,6 +11,9 @@ namespace Core.Submarine
 {
     public class SubmarineMovementController : MonoBehaviour
     {
+        private static readonly int HitEffectBlendProperty = Shader.PropertyToID("_HitEffectBlend");
+        private static readonly int HitEffectColorProperty = Shader.PropertyToID("_HitEffectColor");
+
         private struct MilestoneData
         {
             public float Progress;
@@ -31,6 +35,10 @@ namespace Core.Submarine
         [SerializeField] private Color fuelPopupGainColor = new(0.49f, 0.96f, 0.7f, 1f);
         [SerializeField] private Color fuelPopupLossColor = new(1f, 0.42f, 0.42f, 1f);
         [SerializeField] private Color fuelPopupOutlineColor = new(0.05f, 0.08f, 0.12f, 0.9f);
+        [SerializeField] private float damageFlashDuration = 0.08f;
+        [SerializeField] [Range(0f, 1f)] private float damageFlashPeakBlend = 0.09f;
+        [SerializeField] private Color damageFlashColor = Color.white;
+        [SerializeField] private SpriteRenderer[] damageFlashRenderers;
         [SerializeField] private Vector3 moveDirection = Vector3.right;
         [SerializeField] private float moveSpeed = 2f;
         [SerializeField] private float maxFuel = 100f;
@@ -44,6 +52,7 @@ namespace Core.Submarine
         private bool _isMovementStopped;
         private bool _milestonesDirty = true;
         private readonly List<MilestoneData> _milestones = new();
+        private readonly List<Tween> _damageFlashTweens = new();
 
         public float CurrentFuel => _currentFuel;
         public float FuelNormalized => maxFuel <= 0f ? 0f : _currentFuel / maxFuel;
@@ -66,6 +75,7 @@ namespace Core.Submarine
             _currentFuel = Mathf.Clamp(startFuel, 0f, maxFuel);
             _milestonesDirty = true;
             RefreshTakeableCollector();
+            ResolveDamageFlashRenderers();
         }
 
         private void Update()
@@ -98,6 +108,7 @@ namespace Core.Submarine
 
         public void AddFuel(float amount)
         {
+            GameAudio.PlayPickUp(2f);
             ApplyFuelDelta(Mathf.Abs(amount));
         }
 
@@ -267,6 +278,12 @@ namespace Core.Submarine
         {
             _milestonesDirty = true;
             RefreshTakeableCollector();
+            ResolveDamageFlashRenderers();
+        }
+
+        private void OnDisable()
+        {
+            StopDamageFlash();
         }
 
         private void RefreshTakeableCollector()
@@ -299,8 +316,98 @@ namespace Core.Submarine
 
             if (Mathf.Abs(appliedDelta) > 0.0001f)
             {
+                if (appliedDelta < 0f)
+                {
+                    PlayDamageFlash();
+                }
+
                 SpawnFuelPopup(appliedDelta);
             }
+        }
+
+        private void ResolveDamageFlashRenderers()
+        {
+            if (damageFlashRenderers != null && damageFlashRenderers.Length > 0)
+            {
+                return;
+            }
+
+            damageFlashRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        }
+
+        private void PlayDamageFlash()
+        {
+            if (damageFlashDuration <= 0f || damageFlashPeakBlend <= 0f)
+            {
+                return;
+            }
+
+            ResolveDamageFlashRenderers();
+            StopDamageFlash();
+
+            var halfDuration = Mathf.Max(0.01f, damageFlashDuration * 0.5f);
+            foreach (var spriteRenderer in damageFlashRenderers)
+            {
+                if (spriteRenderer == null)
+                {
+                    continue;
+                }
+
+                var material = spriteRenderer.material;
+                if (material == null || !material.HasProperty(HitEffectBlendProperty))
+                {
+                    continue;
+                }
+
+                if (material.HasProperty(HitEffectColorProperty))
+                {
+                    material.SetColor(HitEffectColorProperty, damageFlashColor);
+                }
+
+                material.SetFloat(HitEffectBlendProperty, 0f);
+
+                var blendInTween = DOTween.To(
+                        () => material.GetFloat(HitEffectBlendProperty),
+                        value => material.SetFloat(HitEffectBlendProperty, value),
+                        damageFlashPeakBlend,
+                        halfDuration)
+                    .SetEase(Ease.OutSine);
+
+                var blendOutTween = DOTween.To(
+                        () => material.GetFloat(HitEffectBlendProperty),
+                        value => material.SetFloat(HitEffectBlendProperty, value),
+                        0f,
+                        halfDuration)
+                    .SetEase(Ease.InSine);
+
+                var flashSequence = DOTween.Sequence()
+                    .Append(blendInTween)
+                    .Append(blendOutTween)
+                    .OnKill(() =>
+                    {
+                        if (material != null)
+                        {
+                            material.SetFloat(HitEffectBlendProperty, 0f);
+                        }
+                    });
+
+                _damageFlashTweens.Add(flashSequence);
+            }
+        }
+
+        private void StopDamageFlash()
+        {
+            if (_damageFlashTweens.Count == 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < _damageFlashTweens.Count; i++)
+            {
+                _damageFlashTweens[i]?.Kill();
+            }
+
+            _damageFlashTweens.Clear();
         }
 
         private void SpawnFuelPopup(float delta)

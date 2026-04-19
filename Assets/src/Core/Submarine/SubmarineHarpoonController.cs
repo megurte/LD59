@@ -1,3 +1,4 @@
+using Common;
 using Constants;
 using DG.Tweening;
 using GlobalSpace;
@@ -215,6 +216,7 @@ namespace Core.Submarine
         {
             var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
             Instantiate(pfb, _harpoonPosition, Quaternion.identity);
+            GameAudio.PlayBubbleSpawn(0.14f, 0.98f, 1.08f);
             
             _state = HarpoonState.Returning;
             if (harpoonCollider != null)

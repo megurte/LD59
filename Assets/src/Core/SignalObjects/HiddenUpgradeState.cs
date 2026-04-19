@@ -1,6 +1,8 @@
+using Common;
 using Constants;
 using Core.Fish;
 using Core.Submarine;
+using DG.Tweening;
 using GlobalSpace;
 using UnityEngine;
 
@@ -41,6 +43,7 @@ namespace Core.SignalObjects
                 return;
             }
 
+            GameAudio.PlayPickUp();
             Global.UpgradeSelectorController.ShowUpgradeSelector(sample);
             Destroy(gameObject);
         }
@@ -49,7 +52,10 @@ namespace Core.SignalObjects
         {
             var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
             Instantiate(pfb, transform.position, Quaternion.identity);
-            Destroy(gameObject);
+            GameAudio.PlayBubbleSpawn(0.16f, 0.98f, 1.08f);
+            _spriteRenderer.gameObject.SetActive(true);
+            signal.SetActive(false);
+            _spriteRenderer.DOFade(0, 1.4f).SetEase(Ease.OutSine).OnComplete(() => Destroy(gameObject));
         }
     }
 }

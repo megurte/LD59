@@ -2,6 +2,8 @@
 using UnityEngine.Audio;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Submarine;
+using DG.Tweening;
 using GlobalSpace;
 
 namespace Common
@@ -73,6 +75,13 @@ namespace Common
         private Coroutine skippingCoroutine;
 
         private const string NULL_INITIAL_SONG = "null";
+        
+        [SerializeField] private bool autoPlayGameplayAmbient = true;
+        [SerializeField] private string gameplayAmbientLoop = GameAudio.AmbientClipName;
+        [SerializeField] [Range(0f, 1f)] private float gameplayAmbientVolume = 0.32f;
+        [SerializeField] private float gameplayAmbientFadeSpeed = 0.18f;
+        [SerializeField] private float gameplayAmbientPitch = 1f;
+        [SerializeField] private bool autoAddGameplaySonar = true;
 
         private void Awake()
         {
@@ -97,6 +106,33 @@ namespace Common
             }
         }
 
+        private void Start()
+        {
+            if (!HasGameplaySubmarine())
+            {
+                return;
+            }
+
+            if (autoPlayGameplayAmbient
+                && string.IsNullOrWhiteSpace(InitialSong)
+                && !string.IsNullOrWhiteSpace(gameplayAmbientLoop)
+                && GetLoop(gameplayAmbientLoop) != null)
+            {
+                CrossFadeLoopIfNotPlaying(
+                    gameplayAmbientLoop,
+                    gameplayAmbientVolume,
+                    gameplayAmbientFadeSpeed,
+                    gameplayAmbientPitch);
+            }
+
+            if (autoAddGameplaySonar
+                && GetSFX(GameAudio.SonarClipName) != null
+                && GetComponent<SubmarineSonarSoundLoop>() == null)
+            {
+                gameObject.AddComponent<SubmarineSonarSoundLoop>();
+            }
+        }
+
         public AudioSource PlayClipAt(AudioClip clip, Vector3 pos)
         {
             GameObject tempGO = new GameObject("TempAudio");
@@ -109,6 +145,57 @@ namespace Common
             aSource.Play();
             Destroy(tempGO, clip.length);
             return aSource;
+        }
+
+        public AudioSource PlaySoundWithEnvelope(
+            string soundName,
+            float volume = 1f,
+            float pitch = 1f,
+            float fadeInDuration = 0f,
+            float fadeOutDuration = 0f)
+        {
+            if (string.IsNullOrEmpty(soundName))
+            {
+                return null;
+            }
+
+            var clip = GetSFX(soundName);
+            if (clip == null)
+            {
+                return null;
+            }
+
+            var tempGO = new GameObject("TempAudioEnvelope");
+            var audioSource = tempGO.AddComponent<AudioSource>();
+            audioSource.clip = clip;
+            audioSource.outputAudioMixerGroup = currentSFXMixer;
+            audioSource.pitch = Mathf.Approximately(pitch, 0f) ? 1f : pitch;
+
+            var targetVolume = Mathf.Max(0f, volume);
+            audioSource.volume = fadeInDuration > 0f ? 0f : targetVolume;
+            audioSource.Play();
+
+            if (fadeInDuration > 0f)
+            {
+                audioSource.DOFade(targetVolume, fadeInDuration).SetEase(Ease.OutSine);
+            }
+
+            var playbackDuration = clip.length / Mathf.Max(0.01f, Mathf.Abs(audioSource.pitch));
+            if (fadeOutDuration > 0f)
+            {
+                var fadeOutDelay = Mathf.Max(fadeInDuration, playbackDuration - fadeOutDuration);
+                DOVirtual.DelayedCall(fadeOutDelay, () =>
+                    {
+                        if (audioSource != null)
+                        {
+                            audioSource.DOFade(0f, fadeOutDuration).SetEase(Ease.InSine);
+                        }
+                    })
+                    .SetLink(tempGO);
+            }
+
+            Destroy(tempGO, playbackDuration + 0.15f);
+            return audioSource;
         }
 
         public AudioSource PlaySound(string soundName)
@@ -275,13 +362,15 @@ namespace Common
         public void StopLoop()
         {
             source.Stop();
+            source.loop = false;
             currentSong = "";
             Fading = false;
         }
 
         public AudioClip GetLoop(string loopName)
         {
-            return Loops.Find(x => x.name == loopName);
+            var loop = Loops.Find(x => x.name == loopName);
+            return loop != null ? loop : GetSFX(loopName);
         }
 
         public void SetLoop(string loopName)
@@ -295,6 +384,7 @@ namespace Common
                     source.Stop();
                     source.time = 0f;
                     source.clip = loop;
+                    source.loop = true;
                     source.Play();
                 }
             }
@@ -313,6 +403,70 @@ namespace Common
         public AudioClip GetSFX(string sfxName)
         {
             return SFX.Find(x => x.name == sfxName);
+        }
+
+        public AudioSource PlayRandomSoundFromList(
+            float volume = 1f,
+            float minPitch = 1f,
+            float maxPitch = 1f,
+            bool noRepeating = true,
+            string historyKey = "",
+            params string[] soundNames)
+        {
+            var availableSounds = new List<string>();
+            foreach (var soundName in soundNames)
+            {
+                if (!string.IsNullOrEmpty(soundName) && GetSFX(soundName) != null)
+                {
+                    availableSounds.Add(soundName);
+                }
+            }
+
+            if (availableSounds.Count == 0)
+            {
+                return null;
+            }
+
+            var key = string.IsNullOrEmpty(historyKey) ? string.Join("|", availableSounds) : historyKey;
+            var index = Random.Range(0, availableSounds.Count);
+
+            if (noRepeating && availableSounds.Count > 1)
+            {
+                if (lastPlayedSounds.TryGetValue(key, out var lastIndex) && lastIndex == index)
+                {
+                    index = (index + Random.Range(1, availableSounds.Count)) % availableSounds.Count;
+                }
+
+                lastPlayedSounds[key] = index;
+            }
+
+            var pitch = Random.Range(Mathf.Min(minPitch, maxPitch), Mathf.Max(minPitch, maxPitch));
+            return PlaySoundWithPitch(availableSounds[index], pitch, volume);
+        }
+
+        public AudioSource PlayRandomSoundFromListAtLimitedFrequency(
+            string soundKey,
+            float frequencyMin,
+            float volume = 1f,
+            float minPitch = 1f,
+            float maxPitch = 1f,
+            bool noRepeating = true,
+            params string[] soundNames)
+        {
+            if (string.IsNullOrEmpty(soundKey))
+            {
+                return PlayRandomSoundFromList(volume, minPitch, maxPitch, noRepeating, soundKey, soundNames);
+            }
+
+            var time = Time.unscaledTime;
+            if (limitedFrequencySounds.TryGetValue(soundKey, out var lastPlayTime)
+                && time - lastPlayTime < frequencyMin)
+            {
+                return null;
+            }
+
+            limitedFrequencySounds[soundKey] = time;
+            return PlayRandomSoundFromList(volume, minPitch, maxPitch, noRepeating, soundKey, soundNames);
         }
 
         public void ClearSFXMixing()
@@ -346,17 +500,14 @@ namespace Common
         public void CrossFadeLoop(string loopName, float volume = 1f, float speed = 5f, float pitch = 1f,
             float offset = 0f)
         {
-            currentSong = loopName;
-            for (int i = 0; i < Loops.Count; i++)
+            if (GetLoop(loopName) == null)
             {
-                AudioClip wav = Loops[i];
-                if (wav.name == loopName)
-                {
-                    StopAllCoroutines();
-                    StartCoroutine(Cross(loopName, volume, false, speed, pitch, offset));
-                    return;
-                }
+                return;
             }
+
+            currentSong = loopName;
+            StopAllCoroutines();
+            StartCoroutine(Cross(loopName, volume, false, speed, pitch, offset));
         }
 
         public void FadeOutLoop(float fadeSpeed = float.MaxValue)
@@ -637,6 +788,11 @@ namespace Common
             {
                 return randomSound;
             }
+        }
+
+        private bool HasGameplaySubmarine()
+        {
+            return Global.SubmarineMovement != null || FindFirstObjectByType<SubmarineMovementController>() != null;
         }
     }
 }

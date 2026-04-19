@@ -1,4 +1,5 @@
 using System;
+using Common;
 using Core.Submarine;
 using GlobalSpace;
 using UnityEngine;
@@ -192,6 +193,7 @@ namespace Core.Fish
             _escapeTimer = 0f;
             var inst = Global.EffectFactory.Create(bubblesBurst);
             inst.transform.position = transform.position;
+            GameAudio.PlayBubbleSpawn(0.14f, 0.98f, 1.08f);
 
             var fromSubmarine = transform.position - (_submarineTransform != null ? _submarineTransform.position : transform.position);
             fromSubmarine.z = 0f;

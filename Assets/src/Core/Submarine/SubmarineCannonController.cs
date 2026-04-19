@@ -1,3 +1,4 @@
+using Common;
 using GlobalSpace;
 using UnityEngine;
 
@@ -44,6 +45,7 @@ namespace Core.Submarine
 
         private void Fire()
         {
+            GameAudio.PlayShoot();
             var origin = firePoint != null ? firePoint.position : transform.position;
             var direction = GetAimDirection(origin);
             var spawnPosition = origin + (Vector3)(direction * muzzleDistance);

@@ -1,5 +1,6 @@
 ﻿using Constants;
 using Core.Submarine;
+using Common;
 using GlobalSpace;
 using UnityEngine;
 
@@ -45,6 +46,7 @@ namespace Core.Fish
             
             var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
             Instantiate(pfb, transform.position, Quaternion.identity);
+            GameAudio.PlayBubbleSpawn(0.16f, 0.96f, 1.06f);
             Destroy(gameObject);
         }
 

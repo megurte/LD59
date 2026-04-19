@@ -1,4 +1,5 @@
 using System.Collections;
+using Common;
 using Constants;
 using DG.Tweening;
 using GlobalSpace;
@@ -283,6 +284,7 @@ namespace Core.Submarine
             
             while (Time.time < endTime)
             {
+                GameAudio.PlayBubbleSpawn(0.1f, 1f, 1.08f);
                 for (var i = 0; i < bubbleBurstsPerPulse; i++)
                 {
                     SpawnBubbleBurst(bubbleBurst);

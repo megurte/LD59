@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Common;
 using Constants;
 using Core.Fish;
 using GlobalSpace;
@@ -45,6 +46,7 @@ namespace Core.Submarine
 
         private void Explode()
         {
+            GameAudio.PlayExplosion(0.62f, 0.93f, 1.01f);
             var radius = GetExplosionRadius();
             var colliders = Physics2D.OverlapCircleAll(transform.position, radius);
             var damagedTargets = new HashSet<IDamageable>();
@@ -80,6 +82,7 @@ namespace Core.Submarine
                 return;
             }
 
+            GameAudio.PlayBubbleSpawn(0.22f, 0.9f, 1.02f);
             var ringBurstCount = Mathf.Max(minBubbleBurstCount, Mathf.CeilToInt(radius * bubbleBurstDensity));
             for (var i = 0; i < ringBurstCount; i++)
             {
