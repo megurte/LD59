@@ -14,6 +14,8 @@ namespace Core.Submarine
         [SerializeField] private float fuelBurnPerSecond = 1f;
 
         private float _currentFuel;
+        private float _speedBoostEndTime;
+        private float _speedBoostMultiplier = 1f;
 
         public float FuelNormalized => maxFuel <= 0f ? 0f : _currentFuel / maxFuel;
         public float RouteProgressNormalized => GetRouteProgress();
@@ -43,7 +45,7 @@ namespace Core.Submarine
                 return;
             }
 
-            transform.position += direction * moveSpeed * Time.deltaTime;
+            transform.position += direction * GetCurrentMoveSpeed() * Time.deltaTime;
             _currentFuel = Mathf.Max(0f, _currentFuel - fuelBurnPerSecond * Time.deltaTime);
 
             if (HasReachedEnd(direction))
@@ -60,6 +62,12 @@ namespace Core.Submarine
         public void SubstructFuel(float amount)
         {
             _currentFuel = Mathf.Clamp(_currentFuel - amount, 0f, maxFuel);
+        }
+
+        public void ApplyTemporarySpeedBoost(float multiplier, float duration)
+        {
+            _speedBoostMultiplier = Mathf.Max(_speedBoostMultiplier, multiplier);
+            _speedBoostEndTime = Mathf.Max(_speedBoostEndTime, Time.time + duration);
         }
 
         private bool HasReachedEnd(Vector3 direction)
@@ -87,6 +95,22 @@ namespace Core.Submarine
 
             var offset = transform.position - startPoint.position;
             return Mathf.Clamp01(Vector3.Dot(offset, line) / line.sqrMagnitude);
+        }
+
+        private float GetCurrentMoveSpeed()
+        {
+            return moveSpeed * GetSpeedBoostMultiplier();
+        }
+
+        private float GetSpeedBoostMultiplier()
+        {
+            if (Time.time > _speedBoostEndTime)
+            {
+                _speedBoostMultiplier = 1f;
+                return 1f;
+            }
+
+            return _speedBoostMultiplier;
         }
     }
 }

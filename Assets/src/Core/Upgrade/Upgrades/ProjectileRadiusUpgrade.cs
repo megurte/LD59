@@ -3,15 +3,24 @@ using UnityEngine;
 
 namespace Core.Upgrade.Upgrades
 {
-    public class ProjectileRadiusUpgrade : IUpgrade
+    public class ProjectileRadiusUpgrade : UpgradeBase
     {
-        public string Name => "Engine upgrade";
-        public string Desc => "Permanently increases boost duration";
-        public Sprite Icon => null;
+        public override string Name => "Mine casing";
+        public override string Desc => "Permanently increases mine shell explosion radius";
+        public override Sprite Icon => null;
+        public override ICondition Condition => new HasMineProjectilesCondition();
         
-        public void Execute()
+        public override void Execute()
         {
             Global.GameProgress.PlayerState.projectileExplosionRadiusModifier += 0.3f;
+        }
+    }
+    
+    public class HasMineProjectilesCondition : ICondition
+    {
+        public bool IsSatisfied()
+        {
+            return Global.GameProgress.PlayerState.mineProjectiles;
         }
     }
 }

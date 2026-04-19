@@ -3,15 +3,17 @@ using UnityEngine;
 
 namespace Core.Upgrade.Upgrades
 {
-    public class CannonCooldownUpgrade : IUpgrade
+    public class CannonCooldownUpgrade : UpgradeBase
     {
-        public string Name => "Old gunner";
-        public string Desc => "Permanently reduces cooldown of cannon's fire";
-        public Sprite Icon => null;
+        public override string Name => "Old gunner";
+        public override string Desc => "Permanently reduces cooldown of cannon's fire";
+        public override Sprite Icon => null;
         
-        public void Execute()
+        public override void Execute()
         {
-            Global.GameProgress.PlayerState.cannonFireCooldownModifier -= 0.2f;
+            Global.GameProgress.PlayerState.cannonFireCooldownModifier = Mathf.Max(
+                0.2f,
+                Global.GameProgress.PlayerState.cannonFireCooldownModifier - 0.2f);
         }
     }
 }

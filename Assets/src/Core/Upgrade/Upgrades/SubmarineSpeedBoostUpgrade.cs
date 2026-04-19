@@ -1,16 +1,26 @@
-﻿using UnityEngine;
+using GlobalSpace;
+using UnityEngine;
 
 namespace Core.Upgrade.Upgrades
 {
-    public class SubmarineSpeedBoostUpgrade : IUpgrade
+    public class SubmarineSpeedBoostUpgrade : UpgradeBase
     {
-        public string Name => "Favorable current";
-        public string Desc => "Significantly boost submarine's speed for short time";
-        public Sprite Icon => null;
-        
-        public void Execute()
+        private const float SpeedMultiplier = 2.5f;
+
+        public override string Name => "Favorable current";
+        public override string Desc => "Significantly boosts submarine's speed for short time";
+        public override Sprite Icon => null;
+
+        public override void Execute()
         {
-            // TODO
+            if (Global.SubmarineMovement == null)
+            {
+                return;
+            }
+
+            Global.SubmarineMovement.ApplyTemporarySpeedBoost(
+                SpeedMultiplier,
+                Global.GameProgress.PlayerState.speedBoostTime);
         }
     }
 }

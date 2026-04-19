@@ -2,12 +2,13 @@
 
 namespace Core.Upgrade
 {
-    public class SampleUpgrade : IUpgrade
+    public class SampleUpgrade : UpgradeBase
     {
-        public string Name => "Sample";
-        public string Desc => "Just a sample upgrade";
-        public Sprite Icon => null;
-        public void Execute()
+        public override string Name => "Sample";
+        public override string Desc => "Just a sample upgrade";
+        public override Sprite Icon => null;
+
+        public override void Execute()
         {
             Debug.Log("Sample upgrade executed");
         }

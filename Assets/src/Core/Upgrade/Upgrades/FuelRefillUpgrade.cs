@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Core.Upgrade.Upgrades
 {
-    public class FuelRefillUpgrade : IUpgrade
+    public class FuelRefillUpgrade : UpgradeBase
     {
-        public string Name => "Oil Barrel";
-        public string Desc => "Refills the submarine's fuel by 30%";
-        public Sprite Icon => null;
+        public override string Name => "Oil Barrel";
+        public override string Desc => "Refills the submarine's fuel by 30%";
+        public override Sprite Icon => null;
         
-        public void Execute()
+        public override void Execute()
         {
             Global.SubmarineMovement.AddFuel(30);
         }

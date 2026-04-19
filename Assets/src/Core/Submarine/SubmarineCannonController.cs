@@ -59,7 +59,7 @@ namespace Core.Submarine
                 body.linearVelocity = direction * projectileSpeed;
             }
 
-            _nextShotTime = Time.time + fireCooldown;
+            _nextShotTime = Time.time + GetFireCooldown();
         }
 
         private Vector2 GetAimDirection(Vector3 origin)
@@ -89,6 +89,16 @@ namespace Core.Submarine
             return targetCamera != null
                    && projectilePrefab != null
                    && (Global.ToolController == null || Global.ToolController.IsToolActive(ToolType.Cannon));
+        }
+
+        private float GetFireCooldown()
+        {
+            if (Global.GameProgress == null)
+            {
+                return fireCooldown;
+            }
+
+            return Mathf.Max(0.05f, fireCooldown * Global.GameProgress.PlayerState.cannonFireCooldownModifier);
         }
     }
 }

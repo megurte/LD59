@@ -3,15 +3,21 @@ using UnityEngine;
 
 namespace Core.Upgrade.Upgrades
 {
-    public class ExplosionProjectileUpgrade : IUpgrade
+    public class ExplosionProjectileUpgrade : UpgradeBase
     {
-        public string Name => "Mine shell";
-        public string Desc => "Replaces projectiles by explosion mines";
-        public Sprite Icon => null;
+        public override string Name => "Mine shell";
+        public override string Desc => "Replaces projectiles by explosion mines";
+        public override Sprite Icon => null;
+        public override ICondition Condition => new MissingMineProjectilesCondition();
         
-        public void Execute()
+        public override void Execute()
         {
             Global.GameProgress.PlayerState.mineProjectiles = true;
         }
+    }
+    
+    public class MissingMineProjectilesCondition : ICondition
+    {
+        public bool IsSatisfied() => !Global.GameProgress.PlayerState.mineProjectiles;
     }
 }

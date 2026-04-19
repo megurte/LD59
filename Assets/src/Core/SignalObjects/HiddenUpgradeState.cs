@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
 using Constants;
 using Core.Fish;
 using Core.Submarine;
-using Core.Upgrade;
 using GlobalSpace;
 using UnityEngine;
 
@@ -20,15 +18,21 @@ namespace Core.SignalObjects
         public float FuelAmount => fuel;
         public Transform RootTransform => rootTransform;
         public Transform HookTransform => hookTransform;
-        
+
         public void OnHook()
         {
             _spriteRenderer.gameObject.SetActive(true);
         }
-        
+
         public void OnObtain()
         {
-            var sample = new List<IUpgrade>{ new SampleUpgrade(), new SampleUpgrade(), new SampleUpgrade()};
+            var sample = Global.UpgradeDropService.GetRandomUpgrades(3);
+            if (sample.Count != 3)
+            {
+                Debug.LogError("HiddenUpgradeState failed to collect 3 unique upgrades.");
+                return;
+            }
+
             Global.UpgradeSelectorController.ShowUpgradeSelector(sample);
             gameObject.SetActive(false);
         }

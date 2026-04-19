@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace Core.Upgrade.Upgrades
 {
-    public class HarpoonSpeedUpgrade : IUpgrade
+    public class HarpoonSpeedUpgrade : UpgradeBase
     {
-        public string Name => "Swift Harpoon";
-        public string Desc => "Permanently increases harpoons speed";
-        public Sprite Icon => null;
+        public override string Name => "Swift Harpoon";
+        public override string Desc => "Permanently increases harpoons speed";
+        public override Sprite Icon => null;
         
-        public void Execute()
+        public override void Execute()
         {
             Global.GameProgress.PlayerState.harpoonSpeedModifier += 0.3f;
         }

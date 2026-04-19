@@ -21,7 +21,7 @@ namespace GlobalSpace
                 await WriteText("Thank you for playing!", 5, false);
                 return;
             }*/
-            Global.GameProgress = new GameProgress();
+            Global.Initialize();
             if (skipInto || Global.GameProgress.skipIntro)
             {
                 intro.SetActive(false);

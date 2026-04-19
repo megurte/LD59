@@ -137,7 +137,7 @@ namespace Core.Submarine
 
             var previousPosition = _harpoonPosition;
             var destination = _state == HarpoonState.Flying ? _targetPosition : harpoonPivot.position;
-            var speed = _state == HarpoonState.Flying ? fireSpeed : GetReturnSpeed();
+            var speed = _state == HarpoonState.Flying ? fireSpeed * GetHarpoonSpeedModifier() : GetReturnSpeed();
 
             _harpoonPosition = Vector3.MoveTowards(_harpoonPosition, destination, speed * Time.deltaTime);
             var delta = _harpoonPosition - previousPosition;
@@ -221,12 +221,15 @@ namespace Core.Submarine
 
         private float GetReturnSpeed()
         {
+            var speedModifier = GetHarpoonSpeedModifier();
             if (_hookedTarget == null)
             {
-                return returnSpeed;
+                return returnSpeed * speedModifier;
             }
 
-            return Mathf.Max(minReturnSpeed, returnSpeed / (1f + _hookedTarget.Weight * weightFactor));
+            return Mathf.Max(
+                minReturnSpeed * speedModifier,
+                returnSpeed * speedModifier / (1f + _hookedTarget.Weight * weightFactor));
         }
 
         private void UpdateHarpoonTransform()
@@ -331,6 +334,16 @@ namespace Core.Submarine
         private bool IsHarpoonSelected()
         {
             return GlobalSpace.Global.ToolController == null || GlobalSpace.Global.ToolController.IsToolActive(ToolType.Harpoon);
+        }
+
+        private float GetHarpoonSpeedModifier()
+        {
+            if (Global.GameProgress == null)
+            {
+                return 1f;
+            }
+
+            return Mathf.Max(0.1f, Global.GameProgress.PlayerState.harpoonSpeedModifier);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Core.Upgrade
         string Name { get; }
         string Desc { get; }
         Sprite Icon { get; }
+        ICondition Condition { get; }
 
         void Execute();
     }

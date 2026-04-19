@@ -7,6 +7,11 @@ namespace GlobalSpace
 {
     public static class Global
     {
+        static Global()
+        {
+            Initialize();
+        }
+
         // UI
         public static Fader GlobalFader;
 
@@ -16,6 +21,7 @@ namespace GlobalSpace
         public static TextController TextController;
         public static ToolController ToolController;
         public static UpgradeSelectorController UpgradeSelectorController;
+        public static UpgradeDropService UpgradeDropService;
         public static bool IsUpgradeSelectorOpen { get; set; }
 
         // Core
@@ -24,5 +30,13 @@ namespace GlobalSpace
 
         // Factories
         public static EffectFactory EffectFactory = new();
+
+        public static void Initialize()
+        {
+            GameProgress = new GameProgress();
+            UpgradeDropService = new UpgradeDropService();
+            EffectFactory = new EffectFactory();
+            IsUpgradeSelectorOpen = false;
+        }
     }
 }
