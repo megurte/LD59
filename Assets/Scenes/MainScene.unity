@@ -47737,7 +47737,7 @@ MonoBehaviour:
   hiddenMinePrefab: {fileID: 5855146879204220450, guid: 857d54ae15caeca40af57f04973388ea, type: 3}
   hiddenUpgradePrefab: {fileID: 498722355986150743, guid: bdc71b2d1f970b84498a2525057266fd, type: 3}
   spawnIntervalRange: {x: 3, y: 5}
-  upgradeChance: 0.25
+  upgradeChance: 1
   spawnAheadOffset: 15.8
   spawnAheadJitter: 2
   spawnHorizontalRange: {x: -5, y: 5}
