@@ -7,11 +7,17 @@ namespace Constants
         // --- Ungrouped ---
         public const string BaseFish = "CMS/BaseFish";
         public const string BubbleBurst = "CMS/bubbleBurst";
+        public const string Extract = "CMS/Extract";
         public const string GameObject = "CMS/GameObject";
         public const string HiddenMine = "CMS/HiddenObjects/HiddenMine";
         public const string HiddenUpgrade = "CMS/HiddenObjects/HiddenUpgrade";
         public const string NewEntity1 = "CMS/NewEntity1";
         public const string ProjectileBase = "CMS/ProjectileBase";
+        public const string ProjectileMine = "CMS/ProjectileMine";
+        public const string Signal1GreenVariant = "CMS/HiddenObjects/Signal1Green Variant";
+        public const string Signal2RedVariant = "CMS/HiddenObjects/Signal2Red Variant";
+        public const string Signal3YellowVariant = "CMS/HiddenObjects/Signal3Yellow Variant";
+        public const string SmallFish = "CMS/SmallFish";
         public const string UpgradeView = "CMS/upgradeView";
     }
 }

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Globalization;
 using Constants;
+using DG.Tweening;
 using GlobalSpace;
+using TMPro;
 using UnityEngine;
 
 namespace Core.Submarine
@@ -18,6 +21,16 @@ namespace Core.Submarine
         [SerializeField] private Transform milestoneRoot;
         [SerializeField] private Vector2 takeableCollectorOffset = new(0f, 0.1f);
         [SerializeField] [Min(0.1f)] private float takeableCollectorRadius = 2.4f;
+        [SerializeField] private Canvas fuelPopupCanvas;
+        [SerializeField] private TextMeshProUGUI fuelPopupTemplate;
+        [SerializeField] private Vector2 fuelPopupSpawnJitter = new(12f, 4f);
+        [SerializeField] private float fuelPopupFontSize = 30f;
+        [SerializeField] private float fuelPopupRiseDistance = 48f;
+        [SerializeField] private float fuelPopupFadeDelay = 0.15f;
+        [SerializeField] private float fuelPopupFadeDuration = 0.65f;
+        [SerializeField] private Color fuelPopupGainColor = new(0.49f, 0.96f, 0.7f, 1f);
+        [SerializeField] private Color fuelPopupLossColor = new(1f, 0.42f, 0.42f, 1f);
+        [SerializeField] private Color fuelPopupOutlineColor = new(0.05f, 0.08f, 0.12f, 0.9f);
         [SerializeField] private Vector3 moveDirection = Vector3.right;
         [SerializeField] private float moveSpeed = 2f;
         [SerializeField] private float maxFuel = 100f;
@@ -85,12 +98,12 @@ namespace Core.Submarine
 
         public void AddFuel(float amount)
         {
-            _currentFuel = Mathf.Clamp(_currentFuel + amount, 0f, maxFuel);
+            ApplyFuelDelta(Mathf.Abs(amount));
         }
 
         public void SubstructFuel(float amount)
         {
-            _currentFuel = Mathf.Clamp(_currentFuel - amount, 0f, maxFuel);
+            ApplyFuelDelta(-Mathf.Abs(amount));
         }
 
         public void StopMovement()
@@ -271,6 +284,76 @@ namespace Core.Submarine
             {
                 collectorCollider.radius = takeableCollectorRadius;
             }
+        }
+
+        private void ApplyFuelDelta(float delta)
+        {
+            if (Mathf.Abs(delta) <= 0.0001f)
+            {
+                return;
+            }
+
+            var previousFuel = _currentFuel;
+            _currentFuel = Mathf.Clamp(_currentFuel + delta, 0f, maxFuel);
+            var appliedDelta = _currentFuel - previousFuel;
+
+            if (Mathf.Abs(appliedDelta) > 0.0001f)
+            {
+                SpawnFuelPopup(appliedDelta);
+            }
+        }
+
+        private void SpawnFuelPopup(float delta)
+        {
+            if (fuelPopupCanvas == null || fuelPopupTemplate == null)
+            {
+                return;
+            }
+
+            var popupText = Instantiate(fuelPopupTemplate, fuelPopupCanvas.transform);
+            var popupObject = popupText.gameObject;
+            popupObject.name = "FuelDeltaPopup";
+            if (popupObject.activeSelf)
+            {
+                popupObject.SetActive(false);
+            }
+
+            var popupTransform = popupText.rectTransform;
+            popupTransform.anchoredPosition = fuelPopupTemplate.rectTransform.anchoredPosition + new Vector2(
+                Random.Range(-fuelPopupSpawnJitter.x, fuelPopupSpawnJitter.x),
+                Random.Range(-fuelPopupSpawnJitter.y, fuelPopupSpawnJitter.y));
+
+            popupText.text = FormatFuelDelta(delta);
+            popupText.raycastTarget = false;
+
+            var popupLifetime = Mathf.Max(fuelPopupFadeDelay + fuelPopupFadeDuration, 0.2f) + 0.1f;
+            var popupAutoDestroy = popupObject.GetComponent<AutoDestroy>();
+            if (popupAutoDestroy != null)
+            {
+                popupAutoDestroy.SetLifetime(popupLifetime);
+            }
+
+            popupObject.SetActive(true);
+
+            popupTransform
+                .DOAnchorPosY(popupTransform.anchoredPosition.y + fuelPopupRiseDistance, popupLifetime)
+                .SetEase(Ease.OutSine);
+
+            popupText
+                .DOFade(0f, fuelPopupFadeDuration)
+                .SetDelay(fuelPopupFadeDelay)
+                .SetEase(Ease.OutSine);
+        }
+
+        private static string FormatFuelDelta(float delta)
+        {
+            var absoluteDelta = Mathf.Abs(delta);
+            var roundedDelta = Mathf.Round(absoluteDelta);
+            var value = Mathf.Abs(absoluteDelta - roundedDelta) <= 0.01f
+                ? roundedDelta.ToString(CultureInfo.InvariantCulture)
+                : absoluteDelta.ToString("0.#", CultureInfo.InvariantCulture);
+
+            return delta >= 0f ? $"+{value}" : $"-{value}";
         }
     }
 }

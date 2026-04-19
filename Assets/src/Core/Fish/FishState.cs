@@ -40,35 +40,21 @@ namespace Core.Fish
         {
             if (Global.GameProgress.PlayerState.mineProjectiles)
             {
-                TrySpawnFuelPickup();
-                var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
-                Instantiate(pfb, transform.position, Quaternion.identity);
-                Destroy(gameObject);
+                DropExtract();
             }
+            
+            var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
+            Instantiate(pfb, transform.position, Quaternion.identity);
+            Destroy(gameObject);
         }
 
-        private void TrySpawnFuelPickup()
+        private void DropExtract()
         {
-            if (_hasDroppedFuelPickup
-                || Global.GameProgress == null
-                || !Global.GameProgress.PlayerState.fishFuelDrop)
+            if (Global.GameProgress.PlayerState.availableDropFromFish)
             {
-                return;
+                var pfb = Global.EffectFactory.LoadAndCreate<GameObject>(Models.Extract);
+                pfb.transform.position = transform.position;
             }
-
-            _hasDroppedFuelPickup = true;
-
-            var spawnOffset = (Vector3)(Random.insideUnitCircle * FuelDropSpawnJitter);
-            var driftDirection = Random.insideUnitCircle;
-            if (driftDirection.sqrMagnitude <= 0.0001f)
-            {
-                driftDirection = Vector2.up;
-            }
-
-            /*FuelPickup.Spawn(
-                transform.position + spawnOffset,
-                fuel,
-                driftDirection.normalized * FuelDropDriftSpeed);*/
         }
     }
 }
