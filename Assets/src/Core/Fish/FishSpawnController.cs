@@ -13,6 +13,7 @@ namespace Core.Fish
         private class FishSpawnRule
         {
             public GameObject prefab;
+            [Min(0)] public int unlockMilestone;
             public Vector2 intervalRange = new(3f, 5f);
             [Range(0f, 1f)] public float schoolChance = 0.35f;
             public Vector2Int schoolSizeRange = new(3, 5);
@@ -20,6 +21,7 @@ namespace Core.Fish
         }
 
         [SerializeField] private SubmarineMovementController submarineMovement;
+        [SerializeField] private Camera targetCamera;
         [SerializeField] private Transform spawnParent;
         [SerializeField] private List<FishSpawnRule> spawnRules = new();
         [SerializeField] private float spawnAheadOffset = 10f;
@@ -28,21 +30,25 @@ namespace Core.Fish
         [SerializeField] private float minimumForwardOffset = 4f;
         [SerializeField] private float despawnBehindDistance = 14f;
         [SerializeField] private float despawnHorizontalDistance = 18f;
+        [SerializeField] [Min(0f)] private float screenExitViewportMargin = 0.08f;
         [SerializeField] private int maxSpawnedFish = 48;
         [SerializeField] private Color spawnGizmoColor = new(0.3f, 1f, 0.75f, 0.9f);
 
         private readonly List<float> _spawnTimers = new();
         private readonly List<GameObject> _spawnedFish = new();
+        private readonly HashSet<GameObject> _fishSeenOnScreen = new();
 
         private void Awake()
         {
             ResolveSubmarine();
+            ResolveCamera();
             SyncRuleTimers();
         }
 
         private void Update()
         {
             ResolveSubmarine();
+            ResolveCamera();
             if (submarineMovement == null)
             {
                 return;
@@ -55,10 +61,16 @@ namespace Core.Fish
 
         private void TickSpawnRules()
         {
+            var currentMilestone = submarineMovement.CurrentMilestoneIndex;
             for (var i = 0; i < spawnRules.Count; i++)
             {
                 var rule = spawnRules[i];
                 if (rule == null || rule.prefab == null)
+                {
+                    continue;
+                }
+
+                if (currentMilestone < Mathf.Max(0, rule.unlockMilestone))
                 {
                     continue;
                 }
@@ -129,12 +141,15 @@ namespace Core.Fish
         private void CleanupSpawnedFish()
         {
             var submarinePosition = submarineMovement.transform.position;
+            var hasTargetCamera = targetCamera != null;
+            var margin = Mathf.Max(0f, screenExitViewportMargin);
 
             for (var i = _spawnedFish.Count - 1; i >= 0; i--)
             {
                 var fish = _spawnedFish[i];
                 if (fish == null)
                 {
+                    _fishSeenOnScreen.Remove(fish);
                     _spawnedFish.RemoveAt(i);
                     continue;
                 }
@@ -142,12 +157,37 @@ namespace Core.Fish
                 var fishPosition = fish.transform.position;
                 var behindSubmarine = fishPosition.y < submarinePosition.y - despawnBehindDistance;
                 var tooFarSideways = Mathf.Abs(fishPosition.x - submarinePosition.x) > despawnHorizontalDistance;
+                var leftScreenAfterEntering = false;
 
-                if (!behindSubmarine && !tooFarSideways)
+                if (hasTargetCamera)
+                {
+                    var viewportPosition = targetCamera.WorldToViewportPoint(fishPosition);
+                    var isInsideViewport = viewportPosition.z >= 0f
+                                           && viewportPosition.x >= 0f
+                                           && viewportPosition.x <= 1f
+                                           && viewportPosition.y >= 0f
+                                           && viewportPosition.y <= 1f;
+
+                    if (isInsideViewport)
+                    {
+                        _fishSeenOnScreen.Add(fish);
+                    }
+                    else if (_fishSeenOnScreen.Contains(fish))
+                    {
+                        leftScreenAfterEntering = viewportPosition.z < 0f
+                                                  || viewportPosition.x < -margin
+                                                  || viewportPosition.x > 1f + margin
+                                                  || viewportPosition.y < -margin
+                                                  || viewportPosition.y > 1f + margin;
+                    }
+                }
+
+                if (!behindSubmarine && !tooFarSideways && !leftScreenAfterEntering)
                 {
                     continue;
                 }
 
+                _fishSeenOnScreen.Remove(fish);
                 _spawnedFish.RemoveAt(i);
                 Destroy(fish);
             }
@@ -165,6 +205,16 @@ namespace Core.Fish
             {
                 submarineMovement = FindFirstObjectByType<SubmarineMovementController>();
             }
+        }
+
+        private void ResolveCamera()
+        {
+            if (targetCamera != null)
+            {
+                return;
+            }
+
+            targetCamera = Camera.main;
         }
 
         private void SyncRuleTimers()

@@ -141,7 +141,7 @@ namespace Core.Submarine
 
             _harpoonPosition = Vector3.MoveTowards(_harpoonPosition, destination, speed * Time.deltaTime);
             var delta = _harpoonPosition - previousPosition;
-            if (delta.sqrMagnitude > 0.000001f)
+            if (_state == HarpoonState.Flying && delta.sqrMagnitude > 0.000001f)
             {
                 _lastDirection = delta.normalized;
             }

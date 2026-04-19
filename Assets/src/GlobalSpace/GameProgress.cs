@@ -9,12 +9,13 @@
         
         public bool availableDropFromFish = false;
         public bool mineProjectiles = false;
+        public bool fishFuelDrop = false;
     }
     
     public class GameProgress
     {
         public bool skipIntro = false;
-        public PlayerState PlayerState { get; private set; }
+        public PlayerState PlayerState { get; set; }
 
         public GameProgress()
         {

@@ -7,7 +7,7 @@ namespace Core.Upgrade.Upgrades
     {
         public override string Name => "Engine upgrade";
         public override string Desc => "Permanently increases boost duration";
-        public override Sprite Icon => null;
+        public override Sprite Icon => Resources.Load<Sprite>("CMS/Sprites/engineUpgrade");
         
         public override void Execute()
         {

@@ -7,7 +7,7 @@ namespace Core.Upgrade.Upgrades
     {
         public override string Name => "Old gunner";
         public override string Desc => "Permanently reduces cooldown of cannon's fire";
-        public override Sprite Icon => null;
+        public override Sprite Icon => Resources.Load<Sprite>("CMS/Sprites/cannonUpgradeIcon");
         
         public override void Execute()
         {

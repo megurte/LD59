@@ -11,4 +11,9 @@ namespace Core.Submarine
         void OnHook();
         void OnObtain();
     }
+
+    public interface ITakeable
+    {
+        void Take(SubmarineMovementController submarineMovement);
+    }
 }

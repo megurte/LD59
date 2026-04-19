@@ -18,7 +18,8 @@ namespace Core.Upgrade
             new UpgradeDropEntry(() => new ExplosionProjectileUpgrade(), 6f),
             new UpgradeDropEntry(() => new ProjectileRadiusUpgrade(), 0.8f),
             new UpgradeDropEntry(() => new SpeedBoostTimeUpgrade(), 1f),
-            new UpgradeDropEntry(() => new SubmarineSpeedBoostUpgrade(), 6f)
+            new UpgradeDropEntry(() => new SubmarineSpeedBoostUpgrade(), 6f),
+            new UpgradeDropEntry(() => new AdvancedExtractionUpgrade(), 4f)
         };
 
         public List<IUpgrade> GetRandomUpgrades(int count)

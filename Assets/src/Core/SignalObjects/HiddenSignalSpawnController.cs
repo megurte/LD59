@@ -14,7 +14,9 @@ namespace Core.SignalObjects
         [SerializeField] private SubmarineMovementController submarineMovement;
         [SerializeField] private Transform spawnParent;
         [SerializeField] private GameObject hiddenMinePrefab;
+        [SerializeField] private int hiddenMineMilestone;
         [SerializeField] private GameObject hiddenUpgradePrefab;
+        [SerializeField] private int hiddenUpgradeMilestone;
         [SerializeField] private Vector2 spawnIntervalRange = new(3f, 5f);
         [SerializeField] private float upgradeChance = 0.25f;
         [SerializeField] private float spawnAheadOffset = 12f;
@@ -51,6 +53,13 @@ namespace Core.SignalObjects
 
         private void TickSpawn()
         {
+            var currentMilestone = submarineMovement.CurrentMilestoneIndex;
+            if (!HasAvailablePrefabs(currentMilestone))
+            {
+                _spawnTimer = 0f;
+                return;
+            }
+
             _spawnTimer -= Time.deltaTime;
             if (_spawnTimer > 0f)
             {
@@ -59,15 +68,15 @@ namespace Core.SignalObjects
 
             if (_spawnedSignals.Count < maxSpawnedSignals)
             {
-                SpawnSignal();
+                SpawnSignal(currentMilestone);
             }
 
             ResetSpawnTimer();
         }
 
-        private void SpawnSignal()
+        private void SpawnSignal(int currentMilestone)
         {
-            var prefab = GetRandomPrefab();
+            var prefab = GetRandomPrefab(currentMilestone);
             if (prefab == null)
             {
                 return;
@@ -78,24 +87,37 @@ namespace Core.SignalObjects
             _spawnedSignals.Add(instance);
         }
 
-        private GameObject GetRandomPrefab()
+        private GameObject GetRandomPrefab(int currentMilestone)
         {
-            if (hiddenMinePrefab == null && hiddenUpgradePrefab == null)
+            var isMineAvailable = IsPrefabAvailable(hiddenMinePrefab, hiddenMineMilestone, currentMilestone);
+            var isUpgradeAvailable = IsPrefabAvailable(hiddenUpgradePrefab, hiddenUpgradeMilestone, currentMilestone);
+            if (!isMineAvailable && !isUpgradeAvailable)
             {
                 return null;
             }
 
-            if (hiddenMinePrefab == null)
+            if (!isMineAvailable)
             {
                 return hiddenUpgradePrefab;
             }
 
-            if (hiddenUpgradePrefab == null)
+            if (!isUpgradeAvailable)
             {
                 return hiddenMinePrefab;
             }
 
             return Random.value <= Mathf.Clamp01(upgradeChance) ? hiddenUpgradePrefab : hiddenMinePrefab;
+        }
+
+        private static bool IsPrefabAvailable(GameObject prefab, int unlockMilestone, int currentMilestone)
+        {
+            return prefab != null && currentMilestone >= Mathf.Max(0, unlockMilestone);
+        }
+
+        private bool HasAvailablePrefabs(int currentMilestone)
+        {
+            return IsPrefabAvailable(hiddenMinePrefab, hiddenMineMilestone, currentMilestone)
+                   || IsPrefabAvailable(hiddenUpgradePrefab, hiddenUpgradeMilestone, currentMilestone);
         }
 
         private Vector3 GetSpawnPosition()

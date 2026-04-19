@@ -9,7 +9,7 @@ namespace Core.Upgrade.Upgrades
 
         public override string Name => "Favorable current";
         public override string Desc => "Significantly boosts submarine's speed for short time";
-        public override Sprite Icon => null;
+        public override Sprite Icon => Resources.Load<Sprite>("CMS/Sprites/current");
 
         public override void Execute()
         {
