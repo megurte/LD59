@@ -15,10 +15,10 @@ namespace Core.Upgrade
             new UpgradeDropEntry(() => new FuelRefillPlusUpgrade(), 0.6f),
             new UpgradeDropEntry(() => new HarpoonSpeedUpgrade(), 1f),
             new UpgradeDropEntry(() => new CannonCooldownUpgrade(), 1f),
-            new UpgradeDropEntry(() => new ExplosionProjectileUpgrade(), 0.8f),
+            new UpgradeDropEntry(() => new ExplosionProjectileUpgrade(), 6f),
             new UpgradeDropEntry(() => new ProjectileRadiusUpgrade(), 0.8f),
             new UpgradeDropEntry(() => new SpeedBoostTimeUpgrade(), 1f),
-            new UpgradeDropEntry(() => new SubmarineSpeedBoostUpgrade(), 1.2f)
+            new UpgradeDropEntry(() => new SubmarineSpeedBoostUpgrade(), 6f)
         };
 
         public List<IUpgrade> GetRandomUpgrades(int count)

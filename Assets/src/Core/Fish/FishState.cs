@@ -1,9 +1,11 @@
-﻿using Core.Submarine;
+﻿using Constants;
+using Core.Submarine;
+using GlobalSpace;
 using UnityEngine;
 
 namespace Core.Fish
 {
-    public class FishState : MonoBehaviour, IHookable
+    public class FishState : MonoBehaviour, IHookable, IDamageable
     {
         public bool IsHooked { get; private set; }
         
@@ -27,6 +29,16 @@ namespace Core.Fish
         public void OnObtain()
         {
             gameObject.SetActive(false);
+        }
+
+        public void OnTakeDamage(float damage)
+        {
+            if (Global.GameProgress.PlayerState.mineProjectiles)
+            {
+                var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
+                Instantiate(pfb, transform.position, Quaternion.identity);
+                Destroy(gameObject);
+            }
         }
     }
 }

@@ -48,7 +48,11 @@ namespace Core.Submarine
         private Tween _boostTween;
         private Tween _boostTimerTween;
         private Tween _shakeTween;
+        private Tween _impulseShakeTween;
         private Coroutine _bubbleRoutine;
+        private float _impulseShakeBlend;
+        private float _impulseShakeStrength;
+        private float _impulseShakeFrequency;
         private MotionBlur _motionBlur;
         private DepthOfField _depthOfField;
         private Bloom _bloom;
@@ -67,6 +71,8 @@ namespace Core.Submarine
 
         private void Awake()
         {
+            sceneCamera ??= Camera.main;
+            postProcessVolume ??= FindFirstObjectByType<Volume>();
             _defaultOrthographicSize = sceneCamera.orthographicSize;
             InitializePostProcessing();
         }
@@ -127,6 +133,22 @@ namespace Core.Submarine
             }
 
             _bubbleRoutine = StartCoroutine(SpawnBoostBubbles(duration + boostExitDuration * 0.4f));
+        }
+
+        public void PlayImpulseShake(float strength, float duration, float frequency)
+        {
+            if (strength <= 0f || duration <= 0f)
+            {
+                return;
+            }
+
+            _impulseShakeTween?.Kill();
+            _impulseShakeStrength = Mathf.Max(_impulseShakeStrength, strength);
+            _impulseShakeFrequency = frequency;
+            _impulseShakeBlend = 1f;
+            _impulseShakeTween = DOVirtual.Float(1f, 0f, duration, x => _impulseShakeBlend = x)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() => _impulseShakeStrength = 0f);
         }
 
         private void AnimateFarState(float value)
@@ -199,33 +221,55 @@ namespace Core.Submarine
 
         private void ApplyBoostPostProcessing()
         {
-            _motionBlur.active = _motionBlurWasActive || _boostBlend > 0.001f;
-            _motionBlur.intensity.value = Mathf.Lerp(_baseMotionBlurIntensity, boostMotionBlurIntensity, _boostBlend);
+            if (_motionBlur != null)
+            {
+                _motionBlur.active = _motionBlurWasActive || _boostBlend > 0.001f;
+                _motionBlur.intensity.value = Mathf.Lerp(_baseMotionBlurIntensity, boostMotionBlurIntensity, _boostBlend);
+            }
             
-            _depthOfField.active = _depthOfFieldWasActive || _boostBlend > 0.001f;
-            _depthOfField.gaussianMaxRadius.value = Mathf.Lerp(_baseDepthBlurRadius, boostDepthBlurRadius, _boostBlend);
+            if (_depthOfField != null)
+            {
+                _depthOfField.active = _depthOfFieldWasActive || _boostBlend > 0.001f;
+                _depthOfField.gaussianMaxRadius.value = Mathf.Lerp(_baseDepthBlurRadius, boostDepthBlurRadius, _boostBlend);
+            }
             
-            _bloom.active = _bloomWasActive || _boostBlend > 0.001f;
-            _bloom.intensity.value = Mathf.Lerp(_baseBloomIntensity, boostBloomIntensity, _boostBlend);
+            if (_bloom != null)
+            {
+                _bloom.active = _bloomWasActive || _boostBlend > 0.001f;
+                _bloom.intensity.value = Mathf.Lerp(_baseBloomIntensity, boostBloomIntensity, _boostBlend);
+            }
 
-            _chromaticAberration.active = _chromaticAberrationWasActive || _boostBlend > 0.001f;
-            _chromaticAberration.intensity.value = Mathf.Lerp(_baseChromaticAberration, boostChromaticAberration, _boostBlend);
+            if (_chromaticAberration != null)
+            {
+                _chromaticAberration.active = _chromaticAberrationWasActive || _boostBlend > 0.001f;
+                _chromaticAberration.intensity.value = Mathf.Lerp(_baseChromaticAberration, boostChromaticAberration, _boostBlend);
+            }
 
-            _vignette.active = _vignetteWasActive || _boostBlend > 0.001f;
-            _vignette.intensity.value = Mathf.Lerp(_baseVignetteIntensity, boostVignetteIntensity, _boostBlend);
+            if (_vignette != null)
+            {
+                _vignette.active = _vignetteWasActive || _boostBlend > 0.001f;
+                _vignette.intensity.value = Mathf.Lerp(_baseVignetteIntensity, boostVignetteIntensity, _boostBlend);
+            }
         }
 
         private Vector3 GetShakeOffset()
         {
-            if (_shakeBlend <= 0.001f)
+            var boostShake = GetNoiseShakeOffset(boostShakeFrequency, boostShakeStrength * _shakeBlend, 0.17f, 0.41f);
+            var impulseShake = GetNoiseShakeOffset(_impulseShakeFrequency, _impulseShakeStrength * _impulseShakeBlend, 1.31f, 2.17f);
+            return boostShake + impulseShake;
+        }
+
+        private Vector3 GetNoiseShakeOffset(float frequency, float strength, float xSeed, float ySeed)
+        {
+            if (strength <= 0.001f || frequency <= 0.001f)
             {
                 return Vector3.zero;
             }
 
-            var time = Time.time * boostShakeFrequency;
-            var x = (Mathf.PerlinNoise(time, 0.17f) - 0.5f) * 2f;
-            var y = (Mathf.PerlinNoise(0.41f, time) - 0.5f) * 2f;
-            return new Vector3(x, y, 0f) * (boostShakeStrength * _shakeBlend);
+            var time = Time.time * frequency;
+            var x = (Mathf.PerlinNoise(time, xSeed) - 0.5f) * 2f;
+            var y = (Mathf.PerlinNoise(ySeed, time) - 0.5f) * 2f;
+            return new Vector3(x, y, 0f) * strength;
         }
 
         private IEnumerator SpawnBoostBubbles(float duration)
@@ -264,8 +308,11 @@ namespace Core.Submarine
             _boostTween?.Kill();
             _boostTimerTween?.Kill();
             _shakeTween?.Kill();
+            _impulseShakeTween?.Kill();
             _boostBlend = 0f;
             _shakeBlend = 0f;
+            _impulseShakeBlend = 0f;
+            _impulseShakeStrength = 0f;
             ApplyBoostPostProcessing();
 
             if (_bubbleRoutine != null)

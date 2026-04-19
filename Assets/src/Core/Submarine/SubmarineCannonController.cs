@@ -8,6 +8,7 @@ namespace Core.Submarine
         [SerializeField] private Camera targetCamera;
         [SerializeField] private Transform firePoint;
         [SerializeField] private GameObject projectilePrefab;
+        [SerializeField] private GameObject mineProjectilePrefab;
         [SerializeField] private float fireCooldown = 0.35f;
         [SerializeField] private float projectileSpeed = 18f;
         [SerializeField] private float muzzleDistance = 0.55f;
@@ -48,11 +49,16 @@ namespace Core.Submarine
             var spawnPosition = origin + (Vector3)(direction * muzzleDistance);
             var angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + projectileRotationOffset;
             var rotation = Quaternion.Euler(0f, 0f, angle);
+            var activeProjectilePrefab = GetActiveProjectilePrefab();
 
-            var projectileInstance = Instantiate(projectilePrefab, spawnPosition, rotation);
+            var projectileInstance = Instantiate(activeProjectilePrefab, spawnPosition, rotation);
             if (projectileInstance.TryGetComponent(out CannonProjectile projectile))
             {
                 projectile.Launch(direction, projectileSpeed);
+            }
+            else if (projectileInstance.TryGetComponent(out MineProjectile mineProjectile))
+            {
+                mineProjectile.Launch(direction, projectileSpeed);
             }
             else if (projectileInstance.TryGetComponent(out Rigidbody2D body))
             {
@@ -87,7 +93,7 @@ namespace Core.Submarine
         private bool CanShoot()
         {
             return targetCamera != null
-                   && projectilePrefab != null
+                   && GetActiveProjectilePrefab() != null
                    && (Global.ToolController == null || Global.ToolController.IsToolActive(ToolType.Cannon));
         }
 
@@ -99,6 +105,18 @@ namespace Core.Submarine
             }
 
             return Mathf.Max(0.05f, fireCooldown * Global.GameProgress.PlayerState.cannonFireCooldownModifier);
+        }
+
+        private GameObject GetActiveProjectilePrefab()
+        {
+            if (Global.GameProgress != null
+                && Global.GameProgress.PlayerState.mineProjectiles
+                && mineProjectilePrefab != null)
+            {
+                return mineProjectilePrefab;
+            }
+
+            return projectilePrefab;
         }
     }
 }
