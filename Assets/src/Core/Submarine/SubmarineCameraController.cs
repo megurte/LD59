@@ -69,6 +69,8 @@ namespace Core.Submarine
         private float _baseChromaticAberration;
         private float _baseVignetteIntensity;
 
+        private bool _stopFollow;
+
         private void Awake()
         {
             sceneCamera ??= Camera.main;
@@ -84,6 +86,8 @@ namespace Core.Submarine
 
         private void LateUpdate()
         {
+            if (_stopFollow)return;
+            
             var desiredOffset = Vector3.Lerp(defaultOffset, boostOffset, _boostBlend);
 
             var desiredPosition = target.position + desiredOffset + GetShakeOffset();
@@ -299,6 +303,11 @@ namespace Core.Submarine
 
             var burst = Instantiate(bubbleBurst, target.position + bubbleSpawnOffset + randomOffset, Quaternion.identity);
             burst.transform.localScale *= Random.Range(bubbleScaleRange.x, bubbleScaleRange.y);
+        }
+
+        public void StopFollow()
+        {
+            _stopFollow = true;
         }
         
         private void OnDisable()

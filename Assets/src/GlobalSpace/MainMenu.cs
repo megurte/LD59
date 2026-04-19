@@ -2,7 +2,12 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
+using Core.Fish;
+using Core.SignalObjects;
+using Core.Submarine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace GlobalSpace
 {

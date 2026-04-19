@@ -40,6 +40,7 @@ namespace Core.Fish
 
         private void Awake()
         {
+            Global.FishSpawnController = this;
             ResolveSubmarine();
             ResolveCamera();
             SyncRuleTimers();

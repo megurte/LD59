@@ -28,11 +28,14 @@ namespace Core.Submarine
         private float _currentFuel;
         private float _speedBoostEndTime;
         private float _speedBoostMultiplier = 1f;
+        private bool _isMovementStopped;
         private bool _milestonesDirty = true;
         private readonly List<MilestoneData> _milestones = new();
 
+        public float CurrentFuel => _currentFuel;
         public float FuelNormalized => maxFuel <= 0f ? 0f : _currentFuel / maxFuel;
         public float RouteProgressNormalized => GetRouteProgress();
+        public bool HasReachedRouteEnd => startPoint != null && endPoint != null && RouteProgressNormalized >= 0.9999f;
         public int MilestoneCount
         {
             get
@@ -49,11 +52,12 @@ namespace Core.Submarine
             Global.SubmarineMovement = this;
             _currentFuel = Mathf.Clamp(startFuel, 0f, maxFuel);
             _milestonesDirty = true;
+            RefreshTakeableCollector();
         }
 
         private void Update()
         {
-            if (_currentFuel <= 0f)
+            if (_isMovementStopped || _currentFuel <= 0f)
             {
                 return;
             }
@@ -87,6 +91,25 @@ namespace Core.Submarine
         public void SubstructFuel(float amount)
         {
             _currentFuel = Mathf.Clamp(_currentFuel - amount, 0f, maxFuel);
+        }
+
+        public void StopMovement()
+        {
+            _isMovementStopped = true;
+
+            if (HasReachedRouteEnd && endPoint != null)
+            {
+                transform.position = endPoint.position;
+            }
+        }
+
+        public void SetTakeableCollectionEnabled(bool isEnabled)
+        {
+            RefreshTakeableCollector();
+            if (takeableCollector != null)
+            {
+                takeableCollector.enabled = isEnabled;
+            }
         }
 
         public void ApplyTemporarySpeedBoost(float multiplier, float duration)
@@ -230,6 +253,24 @@ namespace Core.Submarine
         private void OnValidate()
         {
             _milestonesDirty = true;
+            RefreshTakeableCollector();
+        }
+
+        private void RefreshTakeableCollector()
+        {
+            takeableCollector ??= GetComponentInChildren<SubmarineTakeableCollector>(true);
+            if (takeableCollector == null)
+            {
+                return;
+            }
+
+            takeableCollector.transform.localPosition = new Vector3(takeableCollectorOffset.x, takeableCollectorOffset.y, 0f);
+
+            var collectorCollider = takeableCollector.GetComponent<CircleCollider2D>();
+            if (collectorCollider != null)
+            {
+                collectorCollider.radius = takeableCollectorRadius;
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ namespace Core.SignalObjects
 
         private void Awake()
         {
+            Global.HiddenSignalSpawnController = this;
             ResolveSubmarine();
             LoadDefaultPrefabs();
             ResetSpawnTimer();

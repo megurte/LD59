@@ -1,5 +1,7 @@
 using Common;
 using Common.UI;
+using Core.Fish;
+using Core.SignalObjects;
 using Core.Submarine;
 using Core.Upgrade;
 
@@ -28,13 +30,18 @@ namespace GlobalSpace
         public static SubmarineCameraController SubmarineCameraController { get; set; }
         public static SubmarineHarpoonController HarpoonController { get; set; }
         public static SubmarineMovementController SubmarineMovement { get; set; }
-
+        
+        public static FishSpawnController FishSpawnController { get; set; }
+        public static HiddenSignalSpawnController HiddenSignalSpawnController { get; set; }
+        
         // Factories
         public static EffectFactory EffectFactory = new();
 
         public static void Initialize()
         {
+            var preserveSkipIntro = GameProgress?.skipIntro ?? false;
             GameProgress = new GameProgress();
+            GameProgress.skipIntro = preserveSkipIntro;
             UpgradeDropService = new UpgradeDropService();
             EffectFactory = new EffectFactory();
             IsUpgradeSelectorOpen = false;
