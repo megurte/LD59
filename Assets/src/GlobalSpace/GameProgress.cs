@@ -15,6 +15,7 @@
     public class GameProgress
     {
         public bool skipIntro = false;
+        public bool tutorialPassed = false;
         public PlayerState PlayerState { get; set; }
 
         public GameProgress()

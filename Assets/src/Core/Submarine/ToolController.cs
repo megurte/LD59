@@ -60,6 +60,11 @@ namespace Core.Submarine
             }
 
             var next = (_order.IndexOf(_currentActiveTool) + 1) % _order.Count;
+            if (!CanSwitchToTool(_order[next]))
+            {
+                return;
+            }
+
             _currentActiveTool = _order[next];
 
             switch (_currentActiveTool)
@@ -84,6 +89,16 @@ namespace Core.Submarine
         public bool IsToolActive(ToolType toolType)
         {
             return _currentActiveTool == toolType;
+        }
+
+        private static bool CanSwitchToTool(ToolType nextToolType)
+        {
+            if (nextToolType != ToolType.Cannon)
+            {
+                return true;
+            }
+
+            return GlobalSpace.Global.HarpoonController == null || !GlobalSpace.Global.HarpoonController.InAir;
         }
     }
 }

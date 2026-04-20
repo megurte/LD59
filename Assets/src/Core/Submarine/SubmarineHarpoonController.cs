@@ -89,7 +89,7 @@ namespace Core.Submarine
                 return;
             }
 
-            if (_state == HarpoonState.Idle && Input.GetMouseButtonDown(0))
+            if (_state == HarpoonState.Idle && Input.GetMouseButtonDown(0) && CanFireHarpoon())
             {
                 Fire();
             }
@@ -399,6 +399,12 @@ namespace Core.Submarine
         private bool IsHarpoonSelected()
         {
             return GlobalSpace.Global.ToolController == null || GlobalSpace.Global.ToolController.IsToolActive(ToolType.Harpoon);
+        }
+
+        private bool CanFireHarpoon()
+        {
+            var activeSubmarineMovement = submarineMovement != null ? submarineMovement : Global.SubmarineMovement;
+            return activeSubmarineMovement == null || !activeSubmarineMovement.IsTemporarySpeedBoostActive;
         }
 
         private float GetHarpoonSpeedModifier()

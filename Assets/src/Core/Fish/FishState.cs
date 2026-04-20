@@ -39,10 +39,7 @@ namespace Core.Fish
 
         public void OnTakeDamage(float damage)
         {
-            if (Global.GameProgress.PlayerState.mineProjectiles)
-            {
-                DropExtract();
-            }
+            DropExtract();
             
             var pfb = Global.EffectFactory.LoadVFX(Models.BubbleBurst);
             Instantiate(pfb, transform.position, Quaternion.identity);

@@ -112,8 +112,27 @@ namespace Core.Fish
                     movement.BindSubmarine(submarineMovement);
                 }
 
+                var sphereMovement = fishInstance.GetComponent<FishSphereMovementController>();
+                if (sphereMovement != null)
+                {
+                    sphereMovement.BindSubmarine(submarineMovement);
+                }
+
                 _spawnedFish.Add(fishInstance);
             }
+        }
+
+        public void ClearSpawnedContent()
+        {
+            for (var i = _spawnedFish.Count - 1; i >= 0; i--)
+            {
+                DeactivateAndDestroy(_spawnedFish[i]);
+            }
+
+            _spawnedFish.Clear();
+            _fishSeenOnScreen.Clear();
+            DestroyChildren(spawnParent);
+            DestroyDirectChildrenExcept(spawnParent);
         }
 
         private Vector3 GetSpawnAnchor()
@@ -192,6 +211,48 @@ namespace Core.Fish
                 _spawnedFish.RemoveAt(i);
                 Destroy(fish);
             }
+        }
+
+        private void DestroyDirectChildrenExcept(Transform excludedChild)
+        {
+            for (var i = transform.childCount - 1; i >= 0; i--)
+            {
+                var child = transform.GetChild(i);
+                if (child == excludedChild)
+                {
+                    continue;
+                }
+
+                DeactivateAndDestroy(child.gameObject);
+            }
+        }
+
+        private static void DestroyChildren(Transform parent)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+
+            for (var i = parent.childCount - 1; i >= 0; i--)
+            {
+                DeactivateAndDestroy(parent.GetChild(i).gameObject);
+            }
+        }
+
+        private static void DeactivateAndDestroy(GameObject target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            if (target.activeSelf)
+            {
+                target.SetActive(false);
+            }
+
+            Destroy(target);
         }
 
         private void ResolveSubmarine()

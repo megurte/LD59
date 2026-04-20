@@ -53,11 +53,13 @@ namespace Core.Submarine
         private bool _milestonesDirty = true;
         private readonly List<MilestoneData> _milestones = new();
         private readonly List<Tween> _damageFlashTweens = new();
+        private ParticleSystem[] _attachedParticleSystems;
 
         public float CurrentFuel => _currentFuel;
         public float FuelNormalized => maxFuel <= 0f ? 0f : _currentFuel / maxFuel;
         public float RouteProgressNormalized => GetRouteProgress();
         public bool HasReachedRouteEnd => startPoint != null && endPoint != null && RouteProgressNormalized >= 0.9999f;
+        public bool IsTemporarySpeedBoostActive => Time.time <= _speedBoostEndTime && _speedBoostMultiplier > 1f;
         public int MilestoneCount
         {
             get
@@ -76,6 +78,7 @@ namespace Core.Submarine
             _milestonesDirty = true;
             RefreshTakeableCollector();
             ResolveDamageFlashRenderers();
+            ResolveAttachedParticleSystems();
         }
 
         private void Update()
@@ -93,7 +96,7 @@ namespace Core.Submarine
 
             if (HasReachedEnd(direction))
             {
-                transform.position = endPoint.position;
+                StopMovement();
                 return;
             }
 
@@ -102,7 +105,7 @@ namespace Core.Submarine
 
             if (HasReachedEnd(direction))
             {
-                transform.position = endPoint.position;
+                StopMovement();
             }
         }
 
@@ -120,6 +123,7 @@ namespace Core.Submarine
         public void StopMovement()
         {
             _isMovementStopped = true;
+            StopAttachedParticleSystems();
 
             if (HasReachedRouteEnd && endPoint != null)
             {
@@ -279,6 +283,7 @@ namespace Core.Submarine
             _milestonesDirty = true;
             RefreshTakeableCollector();
             ResolveDamageFlashRenderers();
+            ResolveAttachedParticleSystems();
         }
 
         private void OnDisable()
@@ -300,6 +305,25 @@ namespace Core.Submarine
             if (collectorCollider != null)
             {
                 collectorCollider.radius = takeableCollectorRadius;
+            }
+        }
+
+        private void ResolveAttachedParticleSystems()
+        {
+            _attachedParticleSystems = GetComponentsInChildren<ParticleSystem>(true);
+        }
+
+        private void StopAttachedParticleSystems()
+        {
+            ResolveAttachedParticleSystems();
+            if (_attachedParticleSystems == null || _attachedParticleSystems.Length == 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < _attachedParticleSystems.Length; i++)
+            {
+                _attachedParticleSystems[i]?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
         }
 

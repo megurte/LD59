@@ -88,6 +88,18 @@ namespace Core.SignalObjects
             _spawnedSignals.Add(instance);
         }
 
+        public void ClearSpawnedContent()
+        {
+            for (var i = _spawnedSignals.Count - 1; i >= 0; i--)
+            {
+                DeactivateAndDestroy(_spawnedSignals[i]);
+            }
+
+            _spawnedSignals.Clear();
+            DestroyChildren(spawnParent);
+            DestroyDirectChildrenExcept(spawnParent);
+        }
+
         private GameObject GetRandomPrefab(int currentMilestone)
         {
             var isMineAvailable = IsPrefabAvailable(hiddenMinePrefab, hiddenMineMilestone, currentMilestone);
@@ -155,6 +167,48 @@ namespace Core.SignalObjects
                 _spawnedSignals.RemoveAt(i);
                 Destroy(signal);
             }
+        }
+
+        private void DestroyDirectChildrenExcept(Transform excludedChild)
+        {
+            for (var i = transform.childCount - 1; i >= 0; i--)
+            {
+                var child = transform.GetChild(i);
+                if (child == excludedChild)
+                {
+                    continue;
+                }
+
+                DeactivateAndDestroy(child.gameObject);
+            }
+        }
+
+        private static void DestroyChildren(Transform parent)
+        {
+            if (parent == null)
+            {
+                return;
+            }
+
+            for (var i = parent.childCount - 1; i >= 0; i--)
+            {
+                DeactivateAndDestroy(parent.GetChild(i).gameObject);
+            }
+        }
+
+        private static void DeactivateAndDestroy(GameObject target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            if (target.activeSelf)
+            {
+                target.SetActive(false);
+            }
+
+            Destroy(target);
         }
 
         private void ResolveSubmarine()
