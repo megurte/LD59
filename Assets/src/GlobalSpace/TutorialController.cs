@@ -1,4 +1,3 @@
-using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
@@ -15,6 +14,12 @@ namespace GlobalSpace
         [SerializeField] private GameObject arrow2;
         [SerializeField] private GameObject arrow3;
         [SerializeField] private GameObject arrow4Tool;
+        [SerializeField] private GameObject character;
+        [SerializeField] private float characterJumpHeight = 26f;
+        [SerializeField] private float characterBounceHeight = 8f;
+        [SerializeField] private float characterJumpDuration = 0.16f;
+        [SerializeField] private float characterFallDuration = 0.14f;
+        [SerializeField] private float characterBounceDuration = 0.2f;
 
         private float _timeScaleBeforeTutorial = 1f;
         private bool _upgradeSelectorStateBeforeTutorial;
@@ -22,18 +27,30 @@ namespace GlobalSpace
         private TMPWriter _tutorialWriter;
         private bool _tutorialWriterUseScaledTimeBeforePause = true;
         private bool _tutorialWriterTimeOverrideApplied;
-
+        private bool _writerCallbacksBound;
+        private Transform _characterTransform;
+        private RectTransform _characterRectTransform;
+        private Vector3 _characterBaseLocalPosition;
+        private Vector2 _characterBaseAnchoredPosition;
+        private bool _characterPoseCached;
+        private Tween _characterJumpTween;
 
         private void Awake()
         {
             Global.TutorialController = this;
+            ResolveTutorialWriter();
+            BindWriterCallbacks();
+            CacheCharacterPose();
         }
 
         public async UniTask StartTutorial()
         {
             if (Global.GameProgress.tutorialPassed) return;
 
+            ResolveTutorialWriter();
+            BindWriterCallbacks();
             PauseGameplayForTutorial();
+            EnsureCharacterIdlePose();
 
             root.SetActive(true);
             arrow1Fuel.SetActive(false);
@@ -72,11 +89,15 @@ namespace GlobalSpace
 
         private void OnDisable()
         {
+            StopCharacterAnimation(true);
+            UnbindWriterCallbacks();
             ResumeGameplayAfterTutorial();
         }
 
         private void OnDestroy()
         {
+            StopCharacterAnimation(true);
+            UnbindWriterCallbacks();
             ResumeGameplayAfterTutorial();
         }
 
@@ -103,6 +124,7 @@ namespace GlobalSpace
                 return;
             }
 
+            StopCharacterAnimation(true);
             Time.timeScale = _timeScaleBeforeTutorial;
             Global.IsUpgradeSelectorOpen = _upgradeSelectorStateBeforeTutorial;
             RestoreTutorialWriterScaledTime();
@@ -111,13 +133,9 @@ namespace GlobalSpace
 
         private void ApplyTutorialWriterUnscaledTime()
         {
-            if (_tutorialWriterTimeOverrideApplied)
-            {
-                return;
-            }
-
-            _tutorialWriter ??= text.GetComponent<TMPWriter>();
-            if (_tutorialWriter == null)
+            ResolveTutorialWriter();
+            BindWriterCallbacks();
+            if (_tutorialWriterTimeOverrideApplied || _tutorialWriter == null)
             {
                 return;
             }
@@ -137,5 +155,171 @@ namespace GlobalSpace
             _tutorialWriter.UseScaledTime = _tutorialWriterUseScaledTimeBeforePause;
             _tutorialWriterTimeOverrideApplied = false;
         }
-     }
+
+        private void ResolveTutorialWriter()
+        {
+            _tutorialWriter ??= text != null ? text.GetComponent<TMPWriter>() : null;
+        }
+
+        private void BindWriterCallbacks()
+        {
+            if (_writerCallbacksBound)
+            {
+                return;
+            }
+
+            ResolveTutorialWriter();
+            if (_tutorialWriter == null)
+            {
+                return;
+            }
+
+            _tutorialWriter.OnStartWriter.AddListener(HandleWriterStarted);
+            _writerCallbacksBound = true;
+        }
+
+        private void UnbindWriterCallbacks()
+        {
+            if (!_writerCallbacksBound || _tutorialWriter == null)
+            {
+                return;
+            }
+
+            _tutorialWriter.OnStartWriter.RemoveListener(HandleWriterStarted);
+            _writerCallbacksBound = false;
+        }
+
+        private void HandleWriterStarted(TMPWriter writer)
+        {
+            PlayCharacterJump();
+        }
+
+        private void PlayCharacterJump()
+        {
+            if (!TryPrepareCharacterAnimation())
+            {
+                return;
+            }
+
+            StopCharacterAnimation(true);
+
+            var baseY = GetCharacterBaseY();
+            var peakY = baseY + characterJumpHeight;
+            var bounceY = baseY + Mathf.Max(2f, characterBounceHeight);
+            var bounceUpDuration = Mathf.Max(0.04f, characterBounceDuration * 0.35f);
+            var bounceDownDuration = Mathf.Max(0.05f, characterBounceDuration * 0.65f);
+
+            _characterJumpTween = DOTween.Sequence()
+                .SetUpdate(true)
+                .Append(CreateCharacterMoveTween(peakY, characterJumpDuration, Ease.OutQuad))
+                .Append(CreateCharacterMoveTween(baseY, characterFallDuration, Ease.InQuad))
+                .Append(CreateCharacterMoveTween(bounceY, bounceUpDuration, Ease.OutQuad))
+                .Append(CreateCharacterMoveTween(baseY, bounceDownDuration, Ease.OutBounce))
+                .OnComplete(EnsureCharacterIdlePose);
+        }
+
+        private void StopCharacterAnimation(bool restoreImmediately)
+        {
+            _characterJumpTween?.Kill();
+            _characterJumpTween = null;
+
+            if (restoreImmediately)
+            {
+                EnsureCharacterIdlePose();
+            }
+        }
+
+        private bool TryPrepareCharacterAnimation()
+        {
+            CacheCharacterPose();
+            return _characterTransform != null;
+        }
+
+        private void CacheCharacterPose()
+        {
+            ResolveCharacter();
+            if (_characterPoseCached || _characterTransform == null)
+            {
+                return;
+            }
+
+            _characterBaseLocalPosition = _characterTransform.localPosition;
+            if (_characterRectTransform != null)
+            {
+                _characterBaseAnchoredPosition = _characterRectTransform.anchoredPosition;
+            }
+
+            _characterPoseCached = true;
+        }
+
+        private void ResolveCharacter()
+        {
+            if (character == null && root != null)
+            {
+                var foundTransform = root.transform.Find("char");
+                if (foundTransform == null)
+                {
+                    var allChildren = root.GetComponentsInChildren<Transform>(true);
+                    for (var i = 0; i < allChildren.Length; i++)
+                    {
+                        if (allChildren[i].name != "char")
+                        {
+                            continue;
+                        }
+
+                        foundTransform = allChildren[i];
+                        break;
+                    }
+                }
+
+                if (foundTransform != null)
+                {
+                    character = foundTransform.gameObject;
+                }
+            }
+
+            if (character == null)
+            {
+                _characterTransform = null;
+                _characterRectTransform = null;
+                return;
+            }
+
+            _characterTransform = character.transform;
+            _characterRectTransform = character.GetComponent<RectTransform>();
+        }
+
+        private void EnsureCharacterIdlePose()
+        {
+            if (!TryPrepareCharacterAnimation())
+            {
+                return;
+            }
+
+            if (_characterRectTransform != null)
+            {
+                _characterRectTransform.anchoredPosition = _characterBaseAnchoredPosition;
+                return;
+            }
+
+            _characterTransform.localPosition = _characterBaseLocalPosition;
+        }
+
+        private Tween CreateCharacterMoveTween(float targetY, float duration, Ease ease)
+        {
+            if (_characterRectTransform != null)
+            {
+                return _characterRectTransform.DOAnchorPosY(targetY, duration).SetEase(ease).SetUpdate(true);
+            }
+
+            return _characterTransform.DOLocalMoveY(targetY, duration).SetEase(ease).SetUpdate(true);
+        }
+
+        private float GetCharacterBaseY()
+        {
+            return _characterRectTransform != null
+                ? _characterBaseAnchoredPosition.y
+                : _characterBaseLocalPosition.y;
+        }
+    }
 }
